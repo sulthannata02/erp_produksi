@@ -17,9 +17,10 @@
 </head>
 <body>
 <div class="layout-wrapper">
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
     {{-- ═══ SIDEBAR ═══ --}}
-    <aside class="sidebar">
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-brand">
             <div class="brand-icon">
                 <i class="ph ph-factory"></i>
@@ -36,7 +37,7 @@
             <a href="{{ route('dashboard') }}"
                class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" id="nav-dashboard">
                 <span class="nav-icon"><i class="ph ph-squares-four"></i></span>
-                Dashboard
+                <span class="nav-text">Dashboard</span>
             </a>
 
             @if(auth()->user()->role === 'admin')
@@ -44,38 +45,44 @@
                 <a href="{{ route('materials.index') }}"
                    class="nav-item {{ request()->routeIs('materials.*') ? 'active' : '' }}" id="nav-material">
                     <span class="nav-icon"><i class="ph ph-package"></i></span>
-                    Material
+                    <span class="nav-text">Material</span>
                 </a>
 
                 <a href="{{ route('productions.index') }}"
                    class="nav-item {{ request()->routeIs('productions.*') ? 'active' : '' }}" id="nav-produksi">
                     <span class="nav-icon"><i class="ph ph-factory"></i></span>
-                    Produksi
+                    <span class="nav-text">Produksi</span>
+                </a>
+
+                <a href="{{ route('monitoring.index') }}"
+                   class="nav-item {{ request()->routeIs('monitoring.*') ? 'active' : '' }}" id="nav-monitoring">
+                    <span class="nav-icon"><i class="ph ph-map-trifold"></i></span>
+                    <span class="nav-text">Monitoring</span>
                 </a>
 
                 <a href="{{ route('laporan.index') }}"
                    class="nav-item {{ request()->routeIs('laporan.*') ? 'active' : '' }}" id="nav-laporan">
                     <span class="nav-icon"><i class="ph ph-chart-bar"></i></span>
-                    Laporan
+                    <span class="nav-text">Laporan</span>
                 </a>
             @else
                 {{-- ─── OPERATOR MENU ─── --}}
                 <a href="{{ route('qcs.index') }}"
                    class="nav-item {{ request()->routeIs('qcs.*') ? 'active' : '' }}" id="nav-qc">
                     <span class="nav-icon"><i class="ph ph-shield-check"></i></span>
-                    QC (Quality Control)
+                    <span class="nav-text">QC (Quality Control)</span>
                 </a>
 
                 <a href="{{ route('packings.index') }}"
                    class="nav-item {{ request()->routeIs('packings.*') ? 'active' : '' }}" id="nav-packing">
                     <span class="nav-icon"><i class="ph ph-archive-box"></i></span>
-                    Packing
+                    <span class="nav-text">Packing</span>
                 </a>
 
                 <a href="{{ route('tracking.index') }}"
                    class="nav-item {{ request()->routeIs('tracking.*') ? 'active' : '' }}" id="nav-tracking">
                     <span class="nav-icon"><i class="ph ph-map-trifold"></i></span>
-                    Tracking
+                    <span class="nav-text">Tracking</span>
                 </a>
             @endif
         </nav>
@@ -86,9 +93,14 @@
 
         {{-- ─── TOP HEADER ─── --}}
         <header class="top-header">
-            <div class="header-left">
-                <h2>@yield('page-title', 'Dashboard')</h2>
-                <p>@yield('page-sub', 'Sistem Informasi Produksi & Packing')</p>
+            <div class="header-left" style="display:flex; align-items:center; gap:16px;">
+                <button type="button" id="sidebar-toggle" class="btn-toggle" title="Toggle Sidebar">
+                    <i class="ph ph-list"></i>
+                </button>
+                <div>
+                    <h2>@yield('page-title', 'Dashboard')</h2>
+                    <p>@yield('page-sub', 'Sistem Informasi Produksi & Packing')</p>
+                </div>
             </div>
             <div class="header-right">
                 <div class="header-date">
@@ -160,6 +172,37 @@ if (userMenu && userDropdown) {
     document.addEventListener('click', function(e) {
         if (!userMenu.contains(e.target)) {
             userDropdown.style.display = 'none';
+        }
+    });
+}
+
+// Sidebar Toggle Logic
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.querySelector('.main-content');
+const overlay = document.getElementById('sidebar-overlay');
+
+if (sidebarToggle && sidebar && mainContent && overlay) {
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show');
+        } else {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        }
+    }
+
+    sidebarToggle.addEventListener('click', toggleSidebar);
+    overlay.addEventListener('click', toggleSidebar);
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        } else {
+            sidebar.classList.remove('collapsed');
+            mainContent.classList.remove('expanded');
         }
     });
 }

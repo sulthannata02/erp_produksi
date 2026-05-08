@@ -324,21 +324,6 @@
                 Masuk
             </button>
         </form>
-
-        {{-- Info akun (development helper) --}}
-        @if(config('app.debug'))
-        <div class="account-info">
-            <p>Akun tersedia:</p>
-            <div class="account-row">
-                <span>admin@erp.com / <strong>admin123</strong></span>
-                <span class="role-badge role-admin">Admin</span>
-            </div>
-            <div class="account-row">
-                <span>operator@erp.com / <strong>operator123</strong></span>
-                <span class="role-badge role-operator">Operator</span>
-            </div>
-        </div>
-        @endif
     </div>
 
 </div>

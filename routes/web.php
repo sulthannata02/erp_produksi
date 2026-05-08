@@ -8,6 +8,7 @@ use App\Http\Controllers\ProductionController;
 use App\Http\Controllers\QcController;
 use App\Http\Controllers\PackingController;
 use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\TrackingController;
 
 // ─── Guest only ───
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::resource('materials', MaterialController::class);
         Route::resource('productions', ProductionController::class);
+        Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
     });
