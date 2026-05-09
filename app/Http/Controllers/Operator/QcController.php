@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Operator;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Qc;
 use App\Models\Production;
@@ -11,7 +13,9 @@ class QcController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Qc::with(['production.material']);
+        $operatorName = auth()->user()->name;
+        $query = Qc::with(['production.material'])
+            ->whereHas('production', fn($q) => $q->where('operator', $operatorName));
 
         if ($request->filled('customer')) {
             $query->whereHas('production.material', fn($q) => $q->where('nama_customer', $request->customer));
@@ -36,16 +40,17 @@ class QcController extends Controller
         $qcs       = $query->latest()->paginate(10)->withQueryString();
         $customers = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('qcs.index', compact('qcs', 'customers'));
+        return view('operator.qcs.index', compact('qcs', 'customers'));
     }
 
     public function create()
     {
-        // Hanya produksi yang belum punya QC
+        // Hanya produksi yang belum punya QC & ditugaskan ke operator ini
         $productions = Production::with('material')
+            ->where('operator', auth()->user()->name)
             ->whereDoesntHave('qc')
             ->get();
-        return view('qcs.create', compact('productions'));
+        return view('operator.qcs.create', compact('productions'));
     }
 
     public function store(Request $request)
@@ -75,13 +80,13 @@ class QcController extends Controller
     public function show(string $id)
     {
         $qc = Qc::with(['production.material', 'packing'])->findOrFail($id);
-        return view('qcs.show', compact('qc'));
+        return view('operator.qcs.show', compact('qc'));
     }
 
     public function edit(string $id)
     {
         $qc = Qc::findOrFail($id);
-        return view('qcs.edit', compact('qc'));
+        return view('operator.qcs.edit', compact('qc'));
     }
 
     public function update(Request $request, string $id)
@@ -108,3 +113,4 @@ class QcController extends Controller
         return redirect()->route('qcs.index')->with('success', 'Data QC berhasil dihapus!');
     }
 }
+

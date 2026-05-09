@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Material;
 use Illuminate\Http\Request;
@@ -30,12 +32,12 @@ class MaterialController extends Controller
         $materials = $query->latest()->paginate(10)->withQueryString();
         $customers = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('materials.index', compact('materials', 'customers'));
+        return view('admin.materials.index', compact('materials', 'customers'));
     }
 
     public function create()
     {
-        return view('materials.create');
+        return view('admin.materials.create');
     }
 
     public function store(Request $request)
@@ -71,13 +73,13 @@ class MaterialController extends Controller
     public function show(string $id)
     {
         $material = Material::findOrFail($id);
-        return view('materials.show', compact('material'));
+        return view('admin.materials.show', compact('material'));
     }
 
     public function edit(string $id)
     {
         $material = Material::findOrFail($id);
-        return view('materials.edit', compact('material'));
+        return view('admin.materials.edit', compact('material'));
     }
 
     public function update(Request $request, string $id)
@@ -126,3 +128,4 @@ class MaterialController extends Controller
         return redirect()->route('materials.index')->with('success', 'Material berhasil dihapus!');
     }
 }
+

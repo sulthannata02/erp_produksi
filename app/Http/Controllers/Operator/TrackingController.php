@@ -1,16 +1,20 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Operator;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Material;
 use App\Models\Production;
 use Illuminate\Http\Request;
 
-class MonitoringController extends Controller
+class TrackingController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Production::with(['material', 'qc.packing']);
+        $operatorName = auth()->user()->name;
+        $query = Production::with(['material', 'qc.packing'])
+            ->where('operator', $operatorName);
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -27,6 +31,7 @@ class MonitoringController extends Controller
 
         $productions = $query->latest()->paginate(15)->withQueryString();
 
-        return view('monitoring.index', compact('productions'));
+        return view('operator.tracking.index', compact('productions'));
     }
 }
+

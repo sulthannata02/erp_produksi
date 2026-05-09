@@ -32,19 +32,12 @@
             </div>
         </div>
 
-        <div class="form-grid-2">
-            <div class="form-group">
-                <label class="form-label">Operator <span style="color:var(--ng)">*</span></label>
-                <input type="text" name="operator" class="form-control" id="edit-operator-packing"
-                       value="{{ old('operator', $packing->operator) }}" required>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Status <span style="color:var(--ng)">*</span></label>
-                <select name="status" class="form-select-full" id="edit-status-packing" required>
-                    <option value="proses"  {{ old('status', $packing->status) === 'proses'  ? 'selected' : '' }}>Proses</option>
-                    <option value="selesai" {{ old('status', $packing->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
-                </select>
-            </div>
+        <div class="form-group">
+            <label class="form-label">Status <span style="color:var(--ng)">*</span></label>
+            <select name="status" class="form-select-full" id="edit-status-packing" required>
+                <option value="proses"  {{ old('status', $packing->status) === 'proses'  ? 'selected' : '' }}>Proses</option>
+                <option value="selesai" {{ old('status', $packing->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
+            </select>
         </div>
 
         <div class="form-group">

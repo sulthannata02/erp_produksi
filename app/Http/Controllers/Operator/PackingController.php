@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Operator;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Packing;
 use App\Models\Qc;
@@ -12,7 +14,9 @@ class PackingController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Packing::with(['qc.production.material']);
+        $operatorName = auth()->user()->name;
+        $query = Packing::with(['qc.production.material'])
+            ->whereHas('qc.production', fn($q) => $q->where('operator', $operatorName));
 
         if ($request->filled('customer')) {
             $query->whereHas('qc.production.material', fn($q) => $q->where('nama_customer', $request->customer));
@@ -38,17 +42,19 @@ class PackingController extends Controller
         $packings  = $query->latest()->paginate(10)->withQueryString();
         $customers = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('packings.index', compact('packings', 'customers'));
+        return view('operator.packings.index', compact('packings', 'customers'));
     }
 
     public function create()
     {
-        // Hanya QC yang sudah selesai & belum punya packing
+        // Hanya QC yang sudah selesai & belum punya packing (dan untuk operator ini)
+        $operatorName = auth()->user()->name;
         $qcs = Qc::with('production.material')
+            ->whereHas('production', fn($q) => $q->where('operator', $operatorName))
             ->where('hasil', 'good')
             ->whereDoesntHave('packing')
             ->get();
-        return view('packings.create', compact('qcs'));
+        return view('operator.packings.create', compact('qcs'));
     }
 
     public function store(Request $request)
@@ -58,7 +64,6 @@ class PackingController extends Controller
             'jumlah_fg'  => 'required|integer|min:0',
             'jumlah_ng'  => 'required|integer|min:0',
             'keterangan' => 'nullable|string|max:500',
-            'operator'   => 'required|string|max:255',
         ]);
 
         // Generate kode packing: PKG-YYMMDD-XXX
@@ -72,7 +77,7 @@ class PackingController extends Controller
             'jumlah_fg'    => $request->jumlah_fg,
             'jumlah_ng'    => $request->jumlah_ng,
             'keterangan'   => $request->keterangan,
-            'operator'     => $request->operator,
+            'operator'     => auth()->user()->name,
             'status'       => 'proses',
         ]);
 
@@ -85,13 +90,13 @@ class PackingController extends Controller
     public function show(string $id)
     {
         $packing = Packing::with(['qc.production.material'])->findOrFail($id);
-        return view('packings.show', compact('packing'));
+        return view('operator.packings.show', compact('packing'));
     }
 
     public function edit(string $id)
     {
         $packing = Packing::with(['qc.production.material'])->findOrFail($id);
-        return view('packings.edit', compact('packing'));
+        return view('operator.packings.edit', compact('packing'));
     }
 
     public function update(Request $request, string $id)
@@ -101,11 +106,15 @@ class PackingController extends Controller
             'jumlah_fg'  => 'required|integer|min:0',
             'jumlah_ng'  => 'required|integer|min:0',
             'keterangan' => 'nullable|string|max:500',
-            'operator'   => 'required|string|max:255',
             'status'     => 'required|in:proses,selesai',
         ]);
 
-        $packing->update($request->only(['jumlah_fg','jumlah_ng','keterangan','operator','status']));
+        $packing->update([
+            'jumlah_fg'  => $request->jumlah_fg,
+            'jumlah_ng'  => $request->jumlah_ng,
+            'keterangan' => $request->keterangan,
+            'status'     => $request->status,
+        ]);
 
         return redirect()->route('packings.index')->with('success', 'Data packing berhasil diperbarui!');
     }
