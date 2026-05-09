@@ -35,7 +35,11 @@ class ProductionController extends Controller
         $productions = $query->latest()->paginate(10)->withQueryString();
         $customers   = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('admin.productions.index', compact('productions', 'customers'));
+        $materialsList = Material::where('jumlah', '>', 0)->get();
+        $allMaterials = Material::all();
+        $operatorsList = \App\Models\User::where('role', 'operator')->get();
+
+        return view('admin.productions.index', compact('productions', 'customers', 'materialsList', 'allMaterials', 'operatorsList'));
     }
 
     public function create()

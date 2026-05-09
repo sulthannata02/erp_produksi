@@ -40,7 +40,12 @@ class QcController extends Controller
         $qcs       = $query->latest()->paginate(10)->withQueryString();
         $customers = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('operator.qcs.index', compact('qcs', 'customers'));
+        $productionsList = Production::with('material')
+            ->where('operator', $operatorName)
+            ->whereDoesntHave('qc')
+            ->get();
+
+        return view('operator.qcs.index', compact('qcs', 'customers', 'productionsList'));
     }
 
     public function create()

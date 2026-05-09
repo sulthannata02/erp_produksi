@@ -7,9 +7,9 @@
 
 <div class="page-header">
     <div></div>
-    <a href="{{ route('productions.create') }}" class="btn btn-success" id="btn-tambah-produksi">
+    <button type="button" class="btn btn-success" onclick="openModal('modal-create')">
         <i class="ph ph-plus"></i> Tambah Produksi
-    </a>
+    </button>
 </div>
 
 <div class="card">
@@ -77,9 +77,9 @@
                     </td>
                     <td>
                         <div class="action-group">
-                            <a href="{{ route('productions.edit', $prod->id) }}" class="btn-edit" title="Edit" id="btn-edit-prod-{{ $prod->id }}">
+                            <button type="button" class="btn-edit" title="Edit" onclick="openModal('modal-edit-{{ $prod->id }}')">
                                 <i class="ph ph-pencil-simple"></i>
-                            </a>
+                            </button>
                             <form action="{{ route('productions.destroy', $prod->id) }}" method="POST" style="display:inline"
                                   onsubmit="return confirm('Yakin hapus data produksi ini?')">
                                 @csrf @method('DELETE')
@@ -120,4 +120,139 @@
     </div>
     @endif
 </div>
+
+{{-- MODAL CREATE --}}
+<div id="modal-create" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Form Tambah Produksi</div>
+            <button type="button" class="modal-close" onclick="closeModal('modal-create')"><i class="ph ph-x"></i></button>
+        </div>
+        <form action="{{ route('productions.store') }}" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Material <span style="color:var(--ng)">*</span></label>
+                    <select name="material_id" class="form-select-full" id="input-material-id-create" required onchange="loadMaterialInfo(this, 'create')">
+                        <option value="">-- Pilih Material --</option>
+                        @foreach($materialsList as $mat)
+                            <option value="{{ $mat->id }}"
+                                    data-customer="{{ $mat->nama_customer }}"
+                                    data-satuan="{{ $mat->satuan }}"
+                                    data-stok="{{ $mat->jumlah }}"
+                                    {{ old('material_id') == $mat->id ? 'selected' : '' }}>
+                                {{ $mat->nama_material }} ({{ $mat->kode_part }}) — Stok: {{ number_format($mat->jumlah) }} {{ $mat->satuan }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div id="info-material-create" style="display:none;background:var(--primary-light);border:1px solid var(--primary);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:13px">
+                    Customer: <strong id="info-customer-create">-</strong> &nbsp;|&nbsp;
+                    Satuan: <strong id="info-satuan-create">-</strong> &nbsp;|&nbsp;
+                    Stok tersedia: <strong id="info-stok-create" style="color:var(--primary)">-</strong>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Jumlah Produksi <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah_produksi" class="form-control" value="{{ old('jumlah_produksi') }}" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Produksi <span style="color:var(--ng)">*</span></label>
+                        <input type="date" name="tanggal_produksi" class="form-control" value="{{ old('tanggal_produksi', now()->toDateString()) }}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Operator <span style="color:var(--ng)">*</span></label>
+                    <select name="operator" class="form-select-full" required>
+                        <option value="">-- Pilih Operator --</option>
+                        @foreach($operatorsList as $op)
+                            <option value="{{ $op->name }}" {{ old('operator') == $op->name ? 'selected' : '' }}>{{ $op->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create')">Batal</button>
+                <button type="submit" class="btn btn-success"><i class="ph ph-floppy-disk"></i> Simpan Produksi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODALS EDIT --}}
+@foreach($productions as $prod)
+<div id="modal-edit-{{ $prod->id }}" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Form Edit Produksi</div>
+            <button type="button" class="modal-close" onclick="closeModal('modal-edit-{{ $prod->id }}')"><i class="ph ph-x"></i></button>
+        </div>
+        <form action="{{ route('productions.update', $prod->id) }}" method="POST">
+            @csrf @method('PUT')
+            <input type="hidden" name="modal_id" value="{{ $prod->id }}">
+            <div class="modal-body">
+                <div style="background:var(--body-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:13px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                        <div><span style="color:var(--text-muted)">Kode Produksi</span><br><strong>{{ $prod->kode_produksi ?? '-' }}</strong></div>
+                        <div><span style="color:var(--text-muted)">Material</span><br><strong>{{ optional($prod->material)->nama_material ?? '-' }}</strong></div>
+                        <div><span style="color:var(--text-muted)">Customer</span><br><strong>{{ optional($prod->material)->nama_customer ?? '-' }}</strong></div>
+                        <div><span style="color:var(--text-muted)">Qty Produksi</span><br><strong>{{ number_format($prod->jumlah_produksi) }} {{ optional($prod->material)->satuan }}</strong></div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Operator <span style="color:var(--ng)">*</span></label>
+                    <select name="operator" class="form-select-full" required>
+                        <option value="">-- Pilih Operator --</option>
+                        @foreach($operatorsList as $op)
+                            <option value="{{ $op->name }}" {{ old('operator', $prod->operator) == $op->name ? 'selected' : '' }}>{{ $op->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status <span style="color:var(--ng)">*</span></label>
+                    <select name="status" class="form-select-full" required>
+                        <option value="proses" {{ old('status', $prod->status) === 'proses' ? 'selected' : '' }}>Proses</option>
+                        <option value="selesai" {{ old('status', $prod->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-{{ $prod->id }}')">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Update Produksi</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endforeach
+
 @endsection
+
+@push('scripts')
+<script>
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function loadMaterialInfo(sel, prefix) {
+    const opt = sel.options[sel.selectedIndex];
+    if (opt.value) {
+        document.getElementById('info-material-' + prefix).style.display = 'block';
+        document.getElementById('info-customer-' + prefix).textContent = opt.dataset.customer || '-';
+        document.getElementById('info-satuan-' + prefix).textContent   = opt.dataset.satuan   || '-';
+        document.getElementById('info-stok-' + prefix).textContent     = parseInt(opt.dataset.stok).toLocaleString('id') + ' ' + (opt.dataset.satuan || '');
+    } else {
+        document.getElementById('info-material-' + prefix).style.display = 'none';
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const sel = document.getElementById('input-material-id-create');
+    if (sel && sel.value) loadMaterialInfo(sel, 'create');
+});
+@if($errors->any())
+    @if(old('modal_id'))
+        openModal('modal-edit-{{ old('modal_id') }}');
+    @else
+        openModal('modal-create');
+    @endif
+@endif
+</script>
+@endpush

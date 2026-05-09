@@ -42,7 +42,13 @@ class PackingController extends Controller
         $packings  = $query->latest()->paginate(10)->withQueryString();
         $customers = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('operator.packings.index', compact('packings', 'customers'));
+        $qcsList = Qc::with('production.material')
+            ->whereHas('production', fn($q) => $q->where('operator', $operatorName))
+            ->where('hasil', 'good')
+            ->whereDoesntHave('packing')
+            ->get();
+
+        return view('operator.packings.index', compact('packings', 'customers', 'qcsList'));
     }
 
     public function create()

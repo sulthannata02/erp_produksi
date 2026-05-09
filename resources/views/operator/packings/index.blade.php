@@ -7,9 +7,9 @@
 
 <div class="page-header">
     <div></div>
-    <a href="{{ route('packings.create') }}" class="btn btn-warning" id="btn-tambah-packing">
+    <button type="button" class="btn btn-warning" onclick="openModal('modal-create')">
         <i class="ph ph-plus"></i> Tambah Packing
-    </a>
+    </button>
 </div>
 
 <div class="card">
@@ -86,9 +86,9 @@
                     </td>
                     <td>
                         <div class="action-group">
-                            <a href="{{ route('packings.edit', $packing->id) }}" class="btn-edit" title="Edit" id="btn-edit-packing-{{ $packing->id }}">
+                            <button type="button" class="btn-edit" title="Edit" onclick="openModal('modal-edit-{{ $packing->id }}')">
                                 <i class="ph ph-pencil-simple"></i>
-                            </a>
+                            </button>
                             <form action="{{ route('packings.destroy', $packing->id) }}" method="POST" style="display:inline"
                                   onsubmit="return confirm('Yakin hapus data packing ini?')">
                                 @csrf @method('DELETE')
@@ -129,4 +129,145 @@
     </div>
     @endif
 </div>
+
+{{-- MODAL CREATE --}}
+<div id="modal-create" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Form Tambah Packing</div>
+            <button type="button" class="modal-close" onclick="closeModal('modal-create')"><i class="ph ph-x"></i></button>
+        </div>
+        <form action="{{ route('packings.store') }}" method="POST">
+            @csrf
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Data QC (hasil Good) <span style="color:var(--ng)">*</span></label>
+                    <select name="qc_id" class="form-select-full" id="input-qc-id-create" required onchange="loadQcInfo(this, 'create')">
+                        <option value="">-- Pilih Data QC --</option>
+                        @foreach($qcsList as $qc)
+                            <option value="{{ $qc->id }}"
+                                    data-customer="{{ optional(optional($qc->production)->material)->nama_customer }}"
+                                    data-material="{{ optional(optional($qc->production)->material)->nama_material }}"
+                                    data-kode="{{ optional($qc->production)->kode_produksi }}"
+                                    data-qty="{{ $qc->qty_qc }}"
+                                    data-satuan="{{ optional(optional($qc->production)->material)->satuan }}"
+                                    {{ (old('qc_id') == $qc->id || request('qc') == $qc->id) ? 'selected' : '' }}>
+                                {{ optional($qc->production)->kode_produksi ?? 'ID-'.$qc->id }} — {{ optional(optional($qc->production)->material)->nama_material }} ({{ number_format($qc->qty_qc ?? 0) }} {{ optional(optional($qc->production)->material)->satuan }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div id="info-qc-create" style="display:none;background:var(--primary-light);border:1px solid var(--primary);border-radius:var(--radius-sm);padding:10px 14px;margin-bottom:16px;font-size:13px">
+                    Customer: <strong id="info-qc-customer-create">-</strong> &nbsp;|&nbsp;
+                    Material: <strong id="info-qc-material-create">-</strong> &nbsp;|&nbsp;
+                    Qty QC: <strong id="info-qc-qty-create" style="color:var(--primary)">-</strong>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Total Finish Good (FG) <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah_fg" class="form-control" value="{{ old('jumlah_fg') }}" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Total Not Good (NG) <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah_ng" class="form-control" value="{{ old('jumlah_ng') }}" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Keterangan</label>
+                    <textarea name="keterangan" class="form-control" rows="3">{{ old('keterangan') }}</textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create')">Batal</button>
+                <button type="submit" class="btn btn-warning"><i class="ph ph-floppy-disk"></i> Simpan Packing</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODALS EDIT --}}
+@foreach($packings as $packing)
+<div id="modal-edit-{{ $packing->id }}" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Form Edit Packing</div>
+            <button type="button" class="modal-close" onclick="closeModal('modal-edit-{{ $packing->id }}')"><i class="ph ph-x"></i></button>
+        </div>
+        <form action="{{ route('packings.update', $packing->id) }}" method="POST">
+            @csrf @method('PUT')
+            <input type="hidden" name="modal_id" value="{{ $packing->id }}">
+            <div class="modal-body">
+                <div style="background:var(--body-bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:13px">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                        <div><span style="color:var(--text-muted)">Kode Packing</span><br><strong>{{ $packing->kode_packing ?? '-' }}</strong></div>
+                        <div><span style="color:var(--text-muted)">Kode Produksi</span><br><strong>{{ optional(optional($packing->qc)->production)->kode_produksi ?? '-' }}</strong></div>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Total Finish Good (FG) <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah_fg" class="form-control" value="{{ old('jumlah_fg', $packing->jumlah_fg) }}" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Total Not Good (NG) <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah_ng" class="form-control" value="{{ old('jumlah_ng', $packing->jumlah_ng) }}" min="0" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Keterangan</label>
+                    <textarea name="keterangan" class="form-control" rows="3">{{ old('keterangan', $packing->keterangan) }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Status <span style="color:var(--ng)">*</span></label>
+                    <select name="status" class="form-select-full" required>
+                        <option value="proses"  {{ old('status', $packing->status) === 'proses'  ? 'selected' : '' }}>Proses</option>
+                        <option value="selesai" {{ old('status', $packing->status) === 'selesai' ? 'selected' : '' }}>Selesai</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-{{ $packing->id }}')">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Update Packing</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endforeach
+
 @endsection
+
+@push('scripts')
+<script>
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function loadQcInfo(sel, prefix) {
+    const opt = sel.options[sel.selectedIndex];
+    if (opt.value) {
+        document.getElementById('info-qc-' + prefix).style.display = 'block';
+        document.getElementById('info-qc-customer-' + prefix).textContent = opt.dataset.customer || '-';
+        document.getElementById('info-qc-material-' + prefix).textContent = opt.dataset.material || '-';
+        document.getElementById('info-qc-qty-' + prefix).textContent      = parseInt(opt.dataset.qty || 0).toLocaleString('id') + ' ' + (opt.dataset.satuan || '');
+    } else {
+        document.getElementById('info-qc-' + prefix).style.display = 'none';
+    }
+}
+document.addEventListener('DOMContentLoaded', function() {
+    const sel = document.getElementById('input-qc-id-create');
+    if (sel && sel.value) loadQcInfo(sel, 'create');
+    
+    // Auto open Create if redirected from dashboard
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('qc')) {
+        openModal('modal-create');
+    }
+});
+@if($errors->any())
+    @if(old('modal_id'))
+        openModal('modal-edit-{{ old('modal_id') }}');
+    @else
+        openModal('modal-create');
+    @endif
+@endif
+</script>
+@endpush
