@@ -8,9 +8,9 @@
 {{-- Page Header --}}
 <div class="page-header">
     <div></div>
-    <a href="{{ route('materials.create') }}" class="btn btn-primary" id="btn-tambah-material">
+    <button type="button" class="btn btn-primary" onclick="openModal('modal-create')">
         <i class="ph ph-plus"></i> Tambah Material
-    </a>
+    </button>
 </div>
 
 {{-- Card --}}
@@ -79,9 +79,9 @@
                     </td>
                     <td>
                         <div class="action-group">
-                            <a href="{{ route('materials.edit', $material->id) }}" class="btn-edit" title="Edit" id="btn-edit-material-{{ $material->id }}">
+                            <button type="button" class="btn-edit" title="Edit" onclick="openModal('modal-edit-{{ $material->id }}')">
                                 <i class="ph ph-pencil-simple"></i>
-                            </a>
+                            </button>
                             <form action="{{ route('materials.destroy', $material->id) }}" method="POST" style="display:inline"
                                   onsubmit="return confirm('Yakin hapus material ini?')">
                                 @csrf @method('DELETE')
@@ -128,4 +128,137 @@
     @endif
 </div>
 
+{{-- MODAL CREATE --}}
+<div id="modal-create" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Form Tambah Material</div>
+            <button type="button" class="modal-close" onclick="closeModal('modal-create')"><i class="ph ph-x"></i></button>
+        </div>
+        <form action="{{ route('materials.store') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            <div class="modal-body">
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Nama Customer <span style="color:var(--ng)">*</span></label>
+                        <input type="text" name="nama_customer" class="form-control" required placeholder="Contoh: Fujiseat" value="{{ old('nama_customer') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Material <span style="color:var(--ng)">*</span></label>
+                        <input type="text" name="nama_material" class="form-control" required placeholder="Contoh: Kain MB Tech" value="{{ old('nama_material') }}">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Kode Material <span style="color:var(--ng)">*</span></label>
+                        <input type="text" name="kode_part" class="form-control" required placeholder="Contoh: MAT-001" value="{{ old('kode_part') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Satuan <span style="color:var(--ng)">*</span></label>
+                        <select name="satuan" class="form-select-full" required>
+                            <option value="">-- Pilih Satuan --</option>
+                            @foreach(['Pcs','Roll','Meter','Kg','Liter','Set','Box'] as $s)
+                                <option value="{{ $s }}" {{ old('satuan') == $s ? 'selected' : '' }}>{{ $s }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Jumlah / Stok <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah" class="form-control" required min="0" value="{{ old('jumlah') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Masuk <span style="color:var(--ng)">*</span></label>
+                        <input type="date" name="tanggal_masuk" class="form-control" required value="{{ old('tanggal_masuk', now()->toDateString()) }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Gambar Material <span style="color:var(--text-muted);font-weight:400">(opsional, max 2MB)</span></label>
+                    <input type="file" name="gambar" class="form-control" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-create')">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Simpan Material</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- MODALS EDIT --}}
+@foreach($materials as $material)
+<div id="modal-edit-{{ $material->id }}" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Form Edit Material</div>
+            <button type="button" class="modal-close" onclick="closeModal('modal-edit-{{ $material->id }}')"><i class="ph ph-x"></i></button>
+        </div>
+        <form action="{{ route('materials.update', $material->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf @method('PUT')
+            <input type="hidden" name="modal_id" value="{{ $material->id }}">
+            <div class="modal-body">
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Nama Customer <span style="color:var(--ng)">*</span></label>
+                        <input type="text" name="nama_customer" class="form-control" required value="{{ old('nama_customer', $material->nama_customer) }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Material <span style="color:var(--ng)">*</span></label>
+                        <input type="text" name="nama_material" class="form-control" required value="{{ old('nama_material', $material->nama_material) }}">
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Kode Material <span style="color:var(--ng)">*</span></label>
+                        <input type="text" name="kode_part" class="form-control" required value="{{ old('kode_part', $material->kode_part) }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Satuan <span style="color:var(--ng)">*</span></label>
+                        <select name="satuan" class="form-select-full" required>
+                            <option value="">-- Pilih Satuan --</option>
+                            @foreach(['Pcs','Roll','Meter','Kg','Liter','Set','Box'] as $s)
+                                <option value="{{ $s }}" {{ old('satuan', $material->satuan) == $s ? 'selected' : '' }}>{{ $s }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Jumlah / Stok <span style="color:var(--ng)">*</span></label>
+                        <input type="number" name="jumlah" class="form-control" required min="0" value="{{ old('jumlah', $material->jumlah) }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Masuk <span style="color:var(--ng)">*</span></label>
+                        <input type="date" name="tanggal_masuk" class="form-control" required value="{{ old('tanggal_masuk', $material->tanggal_masuk) }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ganti Gambar <span style="color:var(--text-muted);font-weight:400">(biarkan kosong jika tidak diganti)</span></label>
+                    <input type="file" name="gambar" class="form-control" accept="image/*">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-{{ $material->id }}')">Batal</button>
+                <button type="submit" class="btn btn-primary"><i class="ph ph-floppy-disk"></i> Update Material</button>
+            </div>
+        </form>
+    </div>
+</div>
+@endforeach
+
 @endsection
+
+@push('scripts')
+<script>
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+@if($errors->any())
+    @if(old('modal_id'))
+        openModal('modal-edit-{{ old('modal_id') }}');
+    @else
+        openModal('modal-create');
+    @endif
+@endif
+</script>
+@endpush
