@@ -40,7 +40,7 @@
 {{-- ═══ MENU FITUR ═══ --}}
 <div class="card" style="margin-bottom:20px;">
     <div class="card-title">Menu Fitur</div>
-    <div class="feature-grid" style="grid-template-columns:repeat(4,1fr)">
+    <div class="feature-grid" style="grid-template-columns:repeat(5,1fr)">
         <div class="feature-card">
             <span class="feat-icon">📦</span>
             <h3>Material</h3>
@@ -64,6 +64,12 @@
             <h3>Laporan</h3>
             <p>Lihat laporan produksi</p>
             <a href="{{ route('laporan.index') }}" class="btn btn-feat-pink btn-sm">Masuk</a>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">👥</span>
+            <h3>Pengguna</h3>
+            <p>Kelola data akses sistem</p>
+            <a href="{{ route('users.index') }}" class="btn btn-feat-blue btn-sm" style="background:#14B8A6">Masuk</a>
         </div>
     </div>
 </div>
