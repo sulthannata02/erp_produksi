@@ -22,6 +22,10 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // ─── Semua user yang sudah login ───
 Route::middleware('auth')->group(function () {
+    Route::post('/notifications/read-all', function() {
+        auth()->user()->unreadNotifications->markAsRead();
+        return back();
+    })->name('notifications.readAll');
 
     Route::get('/', fn() => redirect()->route('dashboard'));
 

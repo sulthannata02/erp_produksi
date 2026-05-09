@@ -65,7 +65,7 @@ class ProductionController extends Controller
         $count = Production::whereDate('tanggal_produksi', $request->tanggal_produksi)->count() + 1;
         $kode  = 'PRD-' . $date . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
 
-        Production::create([
+        $production = Production::create([
             'kode_produksi'  => $kode,
             'material_id'    => $request->material_id,
             'jumlah_produksi'=> $request->jumlah_produksi,
@@ -73,6 +73,11 @@ class ProductionController extends Controller
             'tanggal_produksi'=> $request->tanggal_produksi,
             'status'         => 'proses',
         ]);
+
+        $assignedOperator = \App\Models\User::where('role', 'operator')->where('name', $request->operator)->first();
+        if ($assignedOperator) {
+            $assignedOperator->notify(new \App\Notifications\ProductionAssignedNotification($production));
+        }
 
         // Kurangi stok material
         $material->jumlah -= $request->jumlah_produksi;

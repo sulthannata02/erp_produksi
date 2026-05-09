@@ -74,6 +74,15 @@ class QcController extends Controller
         $production = Production::findOrFail($request->production_id);
         $production->update(['status' => 'selesai']);
 
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\OperatorActionNotification(
+            'Laporan QC Baru',
+            "Operator " . auth()->user()->name . " telah menginput data QC untuk produksi {$production->kode_produksi}.",
+            route('monitoring.index'),
+            'ph-shield-check',
+            'purple'
+        ));
+
         return redirect()->route('qcs.index')->with('success', 'Data QC berhasil ditambahkan!');
     }
 
