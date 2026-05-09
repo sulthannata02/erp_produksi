@@ -5,8 +5,33 @@
 
 @push('styles')
 <style>
-.priority-link { font-size: 13px; font-weight: 600; color: var(--primary); display: flex; align-items: center; gap: 4px; }
-.priority-link:hover { text-decoration: underline; }
+.priority-link { 
+    font-size: 13px; 
+    font-weight: 600; 
+    color: var(--primary); 
+    background: rgba(30,111,217, 0.1); /* light primary bg */
+    display: inline-flex; 
+    align-items: center; 
+    gap: 6px; 
+    padding: 6px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(30,111,217, 0.2);
+}
+.priority-link:hover { 
+    background: var(--primary); 
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30,111,217, 0.25);
+    border-color: var(--primary);
+}
+.priority-link i {
+    transition: transform 0.3s ease;
+}
+.priority-link:hover i {
+    transform: translateX(4px);
+}
 </style>
 @endpush
 
@@ -47,7 +72,7 @@
 <div class="card" style="margin-bottom:20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div class="card-title" style="margin-bottom:0">Prioritas Produksi (Delivery Note)</div>
-        <a href="{{ route('productions.index') }}" class="priority-link">Lihat Semua DN →</a>
+        <a href="{{ route('productions.index') }}" class="priority-link">Lihat Semua DN <i class="ph ph-arrow-right"></i></a>
     </div>
     <div class="table-wrapper">
         <table class="table" id="table-prioritas">
