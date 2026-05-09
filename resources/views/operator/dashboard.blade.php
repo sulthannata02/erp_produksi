@@ -75,9 +75,6 @@
                 <span class="badge badge-proses" style="margin-left:8px">{{ $totalBelumQc }} item</span>
             @endif
         </div>
-        <a href="{{ route('qcs.create') }}" class="btn btn-purple btn-sm" id="btn-tambah-qc-dash">
-            <i class="ph ph-plus"></i> Input QC
-        </a>
     </div>
     <div class="table-wrapper">
         <table class="table" id="table-belum-qc">
@@ -90,7 +87,6 @@
                     <th>Qty Produksi</th>
                     <th>Tanggal</th>
                     <th>Status</th>
-                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -103,16 +99,10 @@
                     <td>{{ number_format($prod->jumlah_produksi) }} {{ optional($prod->material)->satuan }}</td>
                     <td>{{ $prod->tanggal_produksi ? \Carbon\Carbon::parse($prod->tanggal_produksi)->format('d/m/Y') : '-' }}</td>
                     <td><span class="badge badge-belum">Belum QC</span></td>
-                    <td>
-                        <a href="{{ route('qcs.create') }}?production={{ $prod->id }}"
-                           class="btn btn-purple btn-sm" id="btn-qc-prod-{{ $prod->id }}">
-                            <i class="ph ph-shield-check"></i> QC Sekarang
-                        </a>
-                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" style="text-align:center;color:var(--text-muted);padding:24px">
+                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">
                         <i class="ph ph-check-circle" style="font-size:28px;display:block;margin-bottom:6px;color:var(--selesai)"></i>
                         Semua produksi sudah di-QC 🎉
                     </td>
@@ -132,9 +122,6 @@
                 <span class="badge badge-fg" style="margin-left:8px">{{ $totalBelumPacking }} item</span>
             @endif
         </div>
-        <a href="{{ route('packings.create') }}" class="btn btn-warning btn-sm" id="btn-tambah-packing-dash">
-            <i class="ph ph-plus"></i> Input Packing
-        </a>
     </div>
     <div class="table-wrapper">
         <table class="table" id="table-siap-packing">
@@ -146,7 +133,6 @@
                     <th>Material</th>
                     <th>Qty QC</th>
                     <th>Hasil QC</th>
-                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -158,16 +144,10 @@
                     <td>{{ optional($prod->material)->nama_material ?? '-' }}</td>
                     <td>{{ number_format(optional($prod->qc)->qty_qc ?? 0) }} {{ optional($prod->material)->satuan }}</td>
                     <td><span class="badge badge-fg">FG (OK)</span></td>
-                    <td>
-                        <a href="{{ route('packings.create') }}?qc={{ optional($prod->qc)->id }}"
-                           class="btn btn-warning btn-sm" id="btn-pack-prod-{{ $prod->id }}">
-                            <i class="ph ph-archive-box"></i> Packing Sekarang
-                        </a>
-                    </td>
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:24px">
+                    <td colspan="6" style="text-align:center;color:var(--text-muted);padding:24px">
                         <i class="ph ph-check-circle" style="font-size:28px;display:block;margin-bottom:6px;color:var(--selesai)"></i>
                         Tidak ada produksi yang siap packing saat ini
                     </td>
