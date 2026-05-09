@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Production;
 use App\Models\Material;
@@ -33,13 +35,14 @@ class ProductionController extends Controller
         $productions = $query->latest()->paginate(10)->withQueryString();
         $customers   = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        return view('productions.index', compact('productions', 'customers'));
+        return view('admin.productions.index', compact('productions', 'customers'));
     }
 
     public function create()
     {
         $materials = Material::where('jumlah', '>', 0)->get();
-        return view('productions.create', compact('materials'));
+        $operators = \App\Models\User::where('role', 'operator')->get();
+        return view('admin.productions.create', compact('materials', 'operators'));
     }
 
     public function store(Request $request)
@@ -81,14 +84,15 @@ class ProductionController extends Controller
     public function show(string $id)
     {
         $production = Production::with(['material', 'qc'])->findOrFail($id);
-        return view('productions.show', compact('production'));
+        return view('admin.productions.show', compact('production'));
     }
 
     public function edit(string $id)
     {
         $production = Production::findOrFail($id);
         $materials  = Material::all();
-        return view('productions.edit', compact('production', 'materials'));
+        $operators = \App\Models\User::where('role', 'operator')->get();
+        return view('admin.productions.edit', compact('production', 'materials', 'operators'));
     }
 
     public function update(Request $request, string $id)

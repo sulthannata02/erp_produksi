@@ -47,8 +47,14 @@
 
         <div class="form-group">
             <label class="form-label">Operator <span style="color:var(--ng)">*</span></label>
-            <input type="text" name="operator" class="form-control" id="input-operator"
-                   value="{{ old('operator') }}" placeholder="Nama operator" required>
+            <select name="operator" class="form-select-full" id="input-operator" required>
+                <option value="">-- Pilih Operator --</option>
+                @foreach($operators as $op)
+                    <option value="{{ $op->name }}" {{ old('operator') == $op->name ? 'selected' : '' }}>
+                        {{ $op->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
 
         <div style="display:flex;gap:10px;margin-top:8px">

@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Material;
 use App\Models\Production;
@@ -33,7 +35,7 @@ class LaporanController extends Controller
         $totalPackFg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_fg ?? 0);
         $totalPackNg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_ng ?? 0);
 
-        return view('laporan.index', compact(
+        return view('admin.laporan.index', compact(
             'productions', 'customers', 'selectedCust',
             'dateFrom', 'dateTo',
             'totalProduksi', 'totalFgOk', 'totalNg', 'totalPackFg', 'totalPackNg'
@@ -61,7 +63,7 @@ class LaporanController extends Controller
         $totalPackFg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_fg ?? 0);
         $totalPackNg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_ng ?? 0);
 
-        $pdf = Pdf::loadView('laporan.pdf', compact(
+        $pdf = Pdf::loadview('admin.laporan.pdf', compact(
             'productions', 'selectedCust', 'dateFrom', 'dateTo',
             'totalProduksi', 'totalFgOk', 'totalNg', 'totalPackFg', 'totalPackNg'
         ))->setPaper('a4', 'landscape');
@@ -71,3 +73,4 @@ class LaporanController extends Controller
         return $pdf->download($filename);
     }
 }
+

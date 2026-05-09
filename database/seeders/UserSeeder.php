@@ -12,17 +12,31 @@ class UserSeeder extends Seeder
     {
         // Admin
         User::create([
-            'name'     => 'Admin',
-            'email'    => 'admin@erp.com',
-            'password' => Hash::make('admin123'),
+            'name'     => 'Sania',
+            'email'    => 'sania@erp.com',
+            'password' => Hash::make('sania123'),
+            'role'     => 'admin',
+        ]);
+
+        User::create([
+            'name'     => 'Dilla',
+            'email'    => 'dilla@erp.com',
+            'password' => Hash::make('dilla123'),
             'role'     => 'admin',
         ]);
 
         // Operator
         User::create([
-            'name'     => 'Operator',
-            'email'    => 'operator@erp.com',
-            'password' => Hash::make('operator123'),
+            'name'     => 'Team A',
+            'email'    => 'teama@erp.com',
+            'password' => Hash::make('teama123'),
+            'role'     => 'operator',
+        ]);
+
+        User::create([
+            'name'     => 'Team B',
+            'email'    => 'teamb@erp.com',
+            'password' => Hash::make('teamb123'),
             'role'     => 'operator',
         ]);
     }

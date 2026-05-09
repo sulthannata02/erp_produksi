@@ -2,14 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MaterialController;
-use App\Http\Controllers\ProductionController;
-use App\Http\Controllers\QcController;
-use App\Http\Controllers\PackingController;
-use App\Http\Controllers\LaporanController;
-use App\Http\Controllers\MonitoringController;
-use App\Http\Controllers\TrackingController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Operator\DashboardController as OperatorDashboard;
+use App\Http\Controllers\Admin\MaterialController;
+use App\Http\Controllers\Admin\ProductionController;
+use App\Http\Controllers\Admin\LaporanController;
+use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\Operator\QcController;
+use App\Http\Controllers\Operator\PackingController;
+use App\Http\Controllers\Operator\TrackingController;
 
 // ─── Guest only ───
 Route::middleware('guest')->group(function () {
@@ -25,7 +26,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/', fn() => redirect()->route('dashboard'));
 
     // Dashboard (controller yang tentukan tampilan berdasarkan role)
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', function() {
+        if (auth()->user()->role === 'operator') {
+            return app(OperatorDashboard::class)->index();
+        }
+        return app(AdminDashboard::class)->index();
+    })->name('dashboard');
 
     // ── Admin only ──────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {

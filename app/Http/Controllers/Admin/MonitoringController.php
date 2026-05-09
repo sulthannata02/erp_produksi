@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\Material;
 use App\Models\Production;
 use Illuminate\Http\Request;
 
-class TrackingController extends Controller
+class MonitoringController extends Controller
 {
     public function index(Request $request)
     {
@@ -27,6 +29,7 @@ class TrackingController extends Controller
 
         $productions = $query->latest()->paginate(15)->withQueryString();
 
-        return view('tracking.index', compact('productions'));
+        return view('admin.monitoring.index', compact('productions'));
     }
 }
+

@@ -47,11 +47,7 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label class="form-label">Operator <span style="color:var(--ng)">*</span></label>
-            <input type="text" name="operator" class="form-control" id="input-operator-packing"
-                   value="{{ old('operator') }}" placeholder="Nama operator" required>
-        </div>
+
 
         <div class="form-group">
             <label class="form-label">Keterangan</label>

@@ -15,7 +15,7 @@
 {{-- ═══ MENU FITUR ═══ --}}
 <div class="card" style="margin-bottom:20px;">
     <div class="card-title">Menu Fitur</div>
-    <div class="feature-grid">
+    <div class="feature-grid" style="grid-template-columns:repeat(4,1fr)">
         <div class="feature-card">
             <span class="feat-icon">📦</span>
             <h3>Material</h3>
@@ -27,6 +27,12 @@
             <h3>Produksi</h3>
             <p>Kelola data produksi</p>
             <a href="{{ route('productions.index') }}" class="btn btn-feat-green btn-sm">Masuk</a>
+        </div>
+        <div class="feature-card">
+            <span class="feat-icon">📊</span>
+            <h3>Monitoring</h3>
+            <p>Pantau seluruh proses</p>
+            <a href="{{ route('monitoring.index') }}" class="btn btn-feat-orange btn-sm">Masuk</a>
         </div>
         <div class="feature-card">
             <span class="feat-icon">📋</span>
