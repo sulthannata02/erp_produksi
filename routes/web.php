@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\MaterialController;
 use App\Http\Controllers\Admin\ProductionController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\MonitoringController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Operator\QcController;
 use App\Http\Controllers\Operator\PackingController;
 use App\Http\Controllers\Operator\TrackingController;
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::resource('materials', MaterialController::class);
         Route::resource('productions', ProductionController::class);
+        Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
         Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
         Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
