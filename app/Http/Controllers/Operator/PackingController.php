@@ -84,6 +84,15 @@ class PackingController extends Controller
         // Update status QC
         Qc::findOrFail($request->qc_id)->update(['status' => 'selesai']);
 
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        \Illuminate\Support\Facades\Notification::send($admins, new \App\Notifications\OperatorActionNotification(
+            'Data Packing Baru',
+            "Operator " . auth()->user()->name . " telah menyelesaikan packing dengan kode {$kode}.",
+            route('monitoring.index'),
+            'ph-archive-box',
+            'orange'
+        ));
+
         return redirect()->route('packings.index')->with('success', 'Data packing berhasil ditambahkan!');
     }
 

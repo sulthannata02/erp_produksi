@@ -57,7 +57,7 @@ class MaterialController extends Controller
             $gambarPath = $request->file('gambar')->store('materials', 'public');
         }
 
-        Material::create([
+        $material = Material::create([
             'nama_customer' => $validated['nama_customer'],
             'nama_material' => $validated['nama_material'],
             'kode_part'     => $validated['kode_part'],
@@ -66,6 +66,9 @@ class MaterialController extends Controller
             'tanggal_masuk' => $validated['tanggal_masuk'],
             'gambar'        => $gambarPath,
         ]);
+
+        $operators = \App\Models\User::where('role', 'operator')->get();
+        \Illuminate\Support\Facades\Notification::send($operators, new \App\Notifications\MaterialAddedNotification($material));
 
         return redirect()->route('materials.index')->with('success', 'Material berhasil ditambahkan!');
     }
