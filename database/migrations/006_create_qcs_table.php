@@ -6,23 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('qcs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('production_id')->constrained()->onDelete('cascade');
-            $table->enum('hasil', ['good', 'not_good']);
-            $table->text('catatan')->nullable();
+            $table->integer('qty_qc')->nullable();
+            $table->integer('jumlah_fg')->default(0);
+            $table->integer('jumlah_ng')->default(0);
+            $table->string('status')->default('proses');
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('qcs');

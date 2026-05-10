@@ -12,6 +12,9 @@ class Material extends Model
         'kode_part',
         'tanggal_masuk',
         'jumlah',
+        'aktual_stok',
+        'qty_per_hanger',
+        'qty_per_box',
         'satuan',
         'gambar',
     ];

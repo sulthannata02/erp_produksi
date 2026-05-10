@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -246,7 +247,9 @@
 
     {{-- Brand --}}
     <div class="brand">
-        <div class="brand-icon">🏭</div>
+        <div class="brand-icon" style="background: none; border: none; overflow: hidden; padding: 0;">
+            <img src="{{ asset('images/Logo-AMC.png') }}" alt="Logo PT. Actmetal Indonesia" style="width: 100%; height: 100%; object-fit: cover; border-radius: 16px;">
+        </div>
         <h1>ERP PRODUKSI</h1>
         <p>PT. ACTMETAL INDONESIA</p>
     </div>
@@ -256,13 +259,7 @@
         <div class="card-title">Selamat Datang!</div>
         <div class="card-sub">Masuk untuk mengakses sistem produksi</div>
 
-        {{-- Error --}}
-        @if($errors->any())
-            <div class="alert-error">
-                <i class="ph ph-warning-circle"></i>
-                {{ $errors->first() }}
-            </div>
-        @endif
+
 
         <form action="{{ route('login') }}" method="POST" id="form-login">
             @csrf
@@ -340,6 +337,26 @@ function togglePassword() {
         icon.className = 'ph ph-eye';
     }
 }
+
+// SweetAlert2 Toast configuration
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 4000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});
+
+@if($errors->any())
+    Toast.fire({
+        icon: 'error',
+        title: "{{ $errors->first() }}"
+    });
+@endif
 </script>
 </body>
 </html>

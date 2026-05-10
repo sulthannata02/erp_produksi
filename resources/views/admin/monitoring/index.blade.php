@@ -39,7 +39,34 @@
 
 @section('content')
 
-<div class="card">
+    {{-- ═══ SUMMARY CARDS ═══ --}}
+    <div class="stat-grid" style="margin-bottom:24px">
+        <div class="stat-card">
+            <div class="stat-icon blue">📋</div>
+            <div class="stat-info">
+                <div class="label">SPK Baru</div>
+                <div class="value" style="color:var(--primary)">{{ $productions->where('status', 'rencana')->count() }}</div>
+                <div class="sub">Menunggu Validasi</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon orange">⚡</div>
+            <div class="stat-info">
+                <div class="label">Sedang Diproses</div>
+                <div class="value" style="color:var(--proses)">{{ $productions->where('status', 'proses')->count() }}</div>
+                <div class="sub">Pengerjaan di Line</div>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon green">✨</div>
+            <div class="stat-info">
+                <div class="label">QC & Packing</div>
+                <div class="value" style="color:var(--selesai)">{{ $productions->where('status', 'selesai')->count() }}</div>
+                <div class="sub">Sudah Beres</div>
+            </div>
+        </div>
+    </div>
+
     {{-- Filter --}}
     <form method="GET" action="{{ route('monitoring.index') }}" id="form-filter-monitoring">
         <div class="filter-bar">
@@ -82,12 +109,14 @@
                     $qc      = $prod->qc;
                     $packing = $qc?->packing;
 
-                    // Step 1: Material → selalu done karena produksi sudah ada
-                    // Step 2: Produksi
-                    $prodDone = true;
+                    // Step 1: SPK (Blueprint) -> Selalu done
+                    $spkDone = true;
+                    // Step 2: Produksi (Actual) -> Done jika status bukan rencana
+                    $prodDone = ($prod->status !== 'rencana');
                     // Step 3: QC
                     $qcDone   = !is_null($qc);
-                    $qcHasil  = $qc?->hasil;
+                    $hasFg    = ($qc?->jumlah_fg ?? 0) > 0;
+                    $hasNg    = ($qc?->jumlah_ng ?? 0) > 0;
                     // Step 4: Packing
                     $packDone = !is_null($packing);
                 @endphp
@@ -100,27 +129,46 @@
                     </td>
                     <td>{{ optional($prod->material)->nama_customer ?? '-' }}</td>
                     <td>{{ optional($prod->material)->nama_material ?? '-' }}</td>
-                    <td>{{ number_format($prod->jumlah_produksi) }} {{ optional($prod->material)->satuan }}</td>
+                    <td>
+                        <strong>
+                            @if($prod->status === 'rencana')
+                                {{ number_format($prod->target_hanger * (optional($prod->material)->qty_per_hanger ?? 0)) }}
+                            @else
+                                {{ number_format($prod->jumlah_produksi) }}
+                            @endif
+                            {{ optional($prod->material)->satuan }}
+                        </strong>
+                    </td>
                     <td>{{ $prod->tanggal_produksi ? \Carbon\Carbon::parse($prod->tanggal_produksi)->format('d/m/Y') : '-' }}</td>
                     <td>
                         <div class="pipeline">
-                            {{-- Material --}}
+                            {{-- SPK (Blueprint) --}}
                             <span class="pipe-step done">
-                                <i class="ph ph-check-circle"></i> Material
+                                <i class="ph ph-list-checks"></i> SPK
                             </span>
                             <span class="pipe-arrow">→</span>
 
-                            {{-- Produksi --}}
-                            <span class="pipe-step done">
-                                <i class="ph ph-check-circle"></i> Produksi
-                            </span>
+                            {{-- Produksi (Actual) --}}
+                            @if($prodDone)
+                                <span class="pipe-step done">
+                                    <i class="ph ph-check-circle"></i> Produksi
+                                </span>
+                            @else
+                                <span class="pipe-step pending">
+                                    <i class="ph ph-clock"></i> Produksi
+                                </span>
+                            @endif
                             <span class="pipe-arrow">→</span>
 
                             {{-- QC --}}
                             @if($qcDone)
-                                @if($qcHasil === 'good')
+                                @if($hasFg && !$hasNg)
                                     <span class="pipe-step done">
                                         <i class="ph ph-check-circle"></i> QC (FG)
+                                    </span>
+                                @elseif($hasFg && $hasNg)
+                                    <span class="pipe-step done" style="background:#FEF3C7;color:#D97706">
+                                        <i class="ph ph-warning-circle"></i> QC (FG+NG)
                                     </span>
                                 @else
                                     <span class="pipe-step" style="background:var(--ng-bg);color:var(--ng);font-weight:600">
@@ -138,11 +186,8 @@
                             @if($packDone)
                                 <span class="pipe-step done">
                                     <i class="ph ph-check-circle"></i> Packing
-                                    @if($packing->kode_packing)
-                                        <span style="font-size:10px;opacity:.8">({{ $packing->kode_packing }})</span>
-                                    @endif
                                 </span>
-                            @elseif($qcDone && $qcHasil === 'good')
+                            @elseif($qcDone && $hasFg)
                                 <span class="pipe-step pending">
                                     <i class="ph ph-clock"></i> Packing
                                 </span>

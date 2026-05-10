@@ -63,14 +63,16 @@ class QcController extends Controller
         $request->validate([
             'production_id' => 'required|exists:productions,id',
             'qty_qc'        => 'required|integer|min:1',
-            'hasil'         => 'required|in:good,not_good',
+            'jumlah_fg'     => 'required|integer|min:0',
+            'jumlah_ng'     => 'required|integer|min:0',
             'keterangan'    => 'nullable|string|max:500',
         ]);
 
         Qc::create([
             'production_id' => $request->production_id,
             'qty_qc'        => $request->qty_qc,
-            'hasil'         => $request->hasil,
+            'jumlah_fg'     => $request->jumlah_fg,
+            'jumlah_ng'     => $request->jumlah_ng,
             'keterangan'    => $request->keterangan,
             'status'        => 'proses',
         ]);
@@ -107,13 +109,15 @@ class QcController extends Controller
     {
         $qc = Qc::findOrFail($id);
         $request->validate([
-            'hasil'      => 'required|in:good,not_good',
+            'jumlah_fg'  => 'required|integer|min:0',
+            'jumlah_ng'  => 'required|integer|min:0',
             'keterangan' => 'nullable|string|max:500',
             'status'     => 'required|in:proses,selesai',
         ]);
 
         $qc->update([
-            'hasil'      => $request->hasil,
+            'jumlah_fg'  => $request->jumlah_fg,
+            'jumlah_ng'  => $request->jumlah_ng,
             'keterangan' => $request->keterangan,
             'status'     => $request->status,
         ]);

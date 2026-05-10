@@ -13,6 +13,9 @@
     <!-- Icons (Phosphor Icons CDN) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @stack('styles')
 </head>
 <body>
@@ -108,22 +111,8 @@
         {{-- ─── PAGE BODY ─── --}}
         <main class="page-content">
 
-            {{-- Flash messages --}}
-            @if(session('success'))
-                <div class="alert alert-success">
-                    <i class="ph ph-check-circle"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
-
-            @if(session('error'))
-                <div class="alert alert-danger">
-                    <i class="ph ph-warning-circle"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
-
             @yield('content')
+
         </main>
     </div>
 </div>
@@ -162,6 +151,51 @@ document.addEventListener('click', function(e) {
 });
 
 
+// SweetAlert2 Toast configuration
+const Toast = Swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});
+
+@if(session('success'))
+    Toast.fire({
+        icon: 'success',
+        title: "{{ session('success') }}"
+    });
+@endif
+
+@if(session('error'))
+    Toast.fire({
+        icon: 'error',
+        title: "{{ session('error') }}"
+    });
+@endif
+
+// Global Delete Confirmation
+function confirmDelete(formId, text = "Data yang dihapus tidak bisa dikembalikan!") {
+    Swal.fire({
+        title: 'Apakah anda yakin?',
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#6B7280',
+        confirmButtonText: 'Ya, hapus!',
+        cancelButtonText: 'Batal',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById(formId).submit();
+        }
+    });
+}
 </script>
 
 @stack('scripts')

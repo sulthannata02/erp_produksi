@@ -11,6 +11,7 @@ class Packing extends Model
         'qc_id',
         'jumlah_fg',
         'jumlah_ng',
+        'jumlah_box',
         'keterangan',
         'operator',
         'status',

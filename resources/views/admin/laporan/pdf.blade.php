@@ -194,8 +194,8 @@
         <tbody>
             @forelse($productions as $i => $prod)
             @php
-                $fgOk   = optional($prod->qc)->hasil === 'good'     ? (optional($prod->qc)->qty_qc ?? 0) : 0;
-                $ng     = optional($prod->qc)->hasil === 'not_good' ? (optional($prod->qc)->qty_qc ?? 0) : 0;
+                $fgOk   = optional($prod->qc)->jumlah_fg ?? 0;
+                $ng     = optional($prod->qc)->jumlah_ng ?? 0;
                 $packFg = optional(optional($prod->qc)->packing)->jumlah_fg ?? 0;
                 $packNg = optional(optional($prod->qc)->packing)->jumlah_ng ?? 0;
                 $ket    = optional(optional($prod->qc)->packing)->keterangan ?? optional($prod->qc)->keterangan ?? '-';

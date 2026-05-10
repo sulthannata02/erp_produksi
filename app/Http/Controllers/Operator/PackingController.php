@@ -44,7 +44,7 @@ class PackingController extends Controller
 
         $qcsList = Qc::with('production.material')
             ->whereHas('production', fn($q) => $q->where('operator', $operatorName))
-            ->where('hasil', 'good')
+            ->where('jumlah_fg', '>', 0)
             ->whereDoesntHave('packing')
             ->get();
 
@@ -57,7 +57,7 @@ class PackingController extends Controller
         $operatorName = auth()->user()->name;
         $qcs = Qc::with('production.material')
             ->whereHas('production', fn($q) => $q->where('operator', $operatorName))
-            ->where('hasil', 'good')
+            ->where('jumlah_fg', '>', 0)
             ->whereDoesntHave('packing')
             ->get();
         return view('operator.packings.create', compact('qcs'));
@@ -77,11 +77,16 @@ class PackingController extends Controller
         $count = Packing::whereDate('created_at', now()->toDateString())->count() + 1;
         $kode  = 'PKG-' . $date . '-' . str_pad($count, 3, '0', STR_PAD_LEFT);
 
+        $qc = Qc::with('production.material')->findOrFail($request->qc_id);
+        $qtyPerBox = optional($qc->production->material)->qty_per_box ?: 1;
+        $jumlahBox = ceil($request->jumlah_fg / $qtyPerBox);
+
         Packing::create([
             'kode_packing' => $kode,
             'qc_id'        => $request->qc_id,
             'jumlah_fg'    => $request->jumlah_fg,
             'jumlah_ng'    => $request->jumlah_ng,
+            'jumlah_box'   => $jumlahBox,
             'keterangan'   => $request->keterangan,
             'operator'     => auth()->user()->name,
             'status'       => 'proses',
@@ -108,6 +113,12 @@ class PackingController extends Controller
         return view('operator.packings.show', compact('packing'));
     }
 
+    public function print(string $id)
+    {
+        $packing = Packing::with(['qc.production.material'])->findOrFail($id);
+        return view('operator.packings.print', compact('packing'));
+    }
+
     public function edit(string $id)
     {
         $packing = Packing::with(['qc.production.material'])->findOrFail($id);
@@ -124,9 +135,14 @@ class PackingController extends Controller
             'status'     => 'required|in:proses,selesai',
         ]);
 
+        $qc = Qc::with('production.material')->findOrFail($packing->qc_id);
+        $qtyPerBox = optional($qc->production->material)->qty_per_box ?: 1;
+        $jumlahBox = ceil($request->jumlah_fg / $qtyPerBox);
+
         $packing->update([
             'jumlah_fg'  => $request->jumlah_fg,
             'jumlah_ng'  => $request->jumlah_ng,
+            'jumlah_box' => $jumlahBox,
             'keterangan' => $request->keterangan,
             'status'     => $request->status,
         ]);
