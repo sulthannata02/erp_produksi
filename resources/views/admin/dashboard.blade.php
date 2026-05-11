@@ -37,21 +37,69 @@
 
 @section('content')
 
+{{-- ═══ BOTTOM: RINGKASAN + GRAFIK ═══ --}}
+<div class="dash-bottom">
+    {{-- Ringkasan Data --}}
+    <div class="card">
+        <div class="card-title">Ringkasan Data</div>
+        <div class="stat-grid" style="grid-template-columns:repeat(4,1fr);gap:12px;">
+            <div class="stat-card">
+                <div class="stat-icon blue">📦</div>
+                <div class="stat-info">
+                    <div class="label">Total Material</div>
+                    <div class="value">{{ number_format($totalMaterial) }}</div>
+                    <div class="sub">Jenis Material</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon green">🏭</div>
+                <div class="stat-info">
+                    <div class="label">Total Produksi</div>
+                    <div class="value">{{ number_format($totalProduksi) }}</div>
+                    <div class="sub">Data Produksi</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <img src="{{ asset('images/quality-control.png') }}" alt="QC" style="width: 24px; height: 24px; object-fit: contain;">
+                </div>
+                <div class="stat-info">
+                    <div class="label">Total QC</div>
+                    <div class="value">{{ number_format($totalQc) }}</div>
+                    <div class="sub">Data QC</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon orange">
+                    <img src="{{ asset('images/icon packing.png') }}" alt="Packing" style="width: 24px; height: 24px; object-fit: contain;">
+                </div>
+                <div class="stat-info">
+                    <div class="label">Total Packing</div>
+                    <div class="value">{{ number_format($totalPacking) }}</div>
+                    <div class="sub">Data Packing</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Grafik Produksi --}}
+    <div class="card">
+        <div class="card-title">Grafik Produksi (30 Hari Terakhir)</div>
+        <div class="chart-container">
+            <canvas id="chartProduksi"></canvas>
+        </div>
+    </div>
+</div>
+
 {{-- ═══ MENU FITUR ═══ --}}
 <div class="card" style="margin-bottom:20px;">
     <div class="card-title">Menu Fitur</div>
-    <div class="feature-grid" style="grid-template-columns:repeat(5,1fr)">
+    <div class="feature-grid" style="grid-template-columns:repeat(4,1fr)">
         <div class="feature-card">
             <span class="feat-icon">📦</span>
             <h3>Material</h3>
             <p>Kelola data material</p>
             <a href="{{ route('materials.index') }}" class="btn btn-feat-blue btn-sm">Masuk</a>
-        </div>
-        <div class="feature-card">
-            <span class="feat-icon">🏭</span>
-            <h3>Produksi</h3>
-            <p>Kelola data produksi</p>
-            <a href="{{ route('productions.index') }}" class="btn btn-feat-green btn-sm">Masuk</a>
         </div>
         <div class="feature-card">
             <span class="feat-icon">📊</span>
@@ -78,7 +126,7 @@
 <div class="card" style="margin-bottom:20px;">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
         <div class="card-title" style="margin-bottom:0">Prioritas Produksi (Delivery Note)</div>
-        <a href="{{ route('productions.index') }}" class="priority-link">Lihat Semua DN <i class="ph ph-arrow-right"></i></a>
+        <a href="{{ route('monitoring.index') }}" class="priority-link">Lihat Semua Data <i class="ph ph-arrow-right"></i></a>
     </div>
     <div class="table-wrapper">
         <table class="table" id="table-prioritas">
@@ -126,56 +174,6 @@
                 @endforelse
             </tbody>
         </table>
-    </div>
-</div>
-
-{{-- ═══ BOTTOM: RINGKASAN + GRAFIK ═══ --}}
-<div class="dash-bottom">
-    {{-- Ringkasan Data --}}
-    <div class="card">
-        <div class="card-title">Ringkasan Data</div>
-        <div class="stat-grid" style="grid-template-columns:repeat(2,1fr);gap:12px;">
-            <div class="stat-card">
-                <div class="stat-icon blue">📦</div>
-                <div class="stat-info">
-                    <div class="label">Total Material</div>
-                    <div class="value">{{ number_format($totalMaterial) }}</div>
-                    <div class="sub">Jenis Material</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon green">🏭</div>
-                <div class="stat-info">
-                    <div class="label">Total Produksi</div>
-                    <div class="value">{{ number_format($totalProduksi) }}</div>
-                    <div class="sub">Data Produksi</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon purple">🛡️</div>
-                <div class="stat-info">
-                    <div class="label">Total QC</div>
-                    <div class="value">{{ number_format($totalQc) }}</div>
-                    <div class="sub">Data QC</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon orange">📬</div>
-                <div class="stat-info">
-                    <div class="label">Total Packing</div>
-                    <div class="value">{{ number_format($totalPacking) }}</div>
-                    <div class="sub">Data Packing</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- Grafik Produksi --}}
-    <div class="card">
-        <div class="card-title">Grafik Produksi (30 Hari Terakhir)</div>
-        <div class="chart-container">
-            <canvas id="chartProduksi"></canvas>
-        </div>
     </div>
 </div>
 

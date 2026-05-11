@@ -9,6 +9,8 @@ class Production extends Model
     protected $fillable = [
         'kode_produksi',
         'material_id',
+        'target_hanger',
+        'jumlah_hanger',
         'jumlah_produksi',
         'operator',
         'tanggal_produksi',

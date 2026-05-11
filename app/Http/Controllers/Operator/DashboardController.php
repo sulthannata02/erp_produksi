@@ -13,31 +13,37 @@ class DashboardController extends Controller
     {
         $operatorName = auth()->user()->name;
 
+        // Prioritas Produksi (Semua Data)
+        $prioritas = Production::with('material')
+            ->orderBy('tanggal_produksi', 'asc')
+            ->take(10)
+            ->get();
+
         // Produksi yang belum di-QC
         $beluQc = Production::with('material')
             ->where('operator', $operatorName)
+            ->where('status', 'proses')
             ->whereDoesntHave('qc')
             ->latest()
             ->get();
 
-        // Produksi sudah QC (good) tapi belum packing
+        // Produksi sudah QC tapi belum packing
         $belumPacking = Production::with(['material', 'qc'])
             ->where('operator', $operatorName)
-            ->whereHas('qc', fn($q) => $q->where('hasil', 'good'))
+            ->whereHas('qc', fn($q) => $q->where('status', 'selesai'))
             ->whereHas('qc', fn($q) => $q->whereDoesntHave('packing'))
             ->latest()
             ->get();
 
-        // Stat ringkas
-        $totalBelumQc     = $beluQc->count();
-        $totalBelumPacking = $belumPacking->count();
-        $totalQcSelesai   = Qc::whereHas('production', fn($q) => $q->where('operator', $operatorName))->where('status', 'selesai')->count();
-        $totalPackSelesai = Packing::whereHas('qc.production', fn($q) => $q->where('operator', $operatorName))->where('status', 'selesai')->count();
+        // Stat ringkas (Global)
+        $totalBarangDatang = \App\Models\MaterialMasuk::count();
+        $totalProduksi     = Production::count();
+        $totalQc           = Qc::count();
+        $totalPacking      = Packing::count();
 
         return view('operator.dashboard', compact(
-            'beluQc', 'belumPacking',
-            'totalBelumQc', 'totalBelumPacking',
-            'totalQcSelesai', 'totalPackSelesai'
+            'prioritas', 'beluQc', 'belumPacking',
+            'totalBarangDatang', 'totalProduksi', 'totalQc', 'totalPacking'
         ));
     }
 }

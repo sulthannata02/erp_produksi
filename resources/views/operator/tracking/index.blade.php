@@ -87,7 +87,8 @@
                     $prodDone = true;
                     // Step 3: QC
                     $qcDone   = !is_null($qc);
-                    $qcHasil  = $qc?->hasil;
+                    $hasFg    = ($qc?->jumlah_fg ?? 0) > 0;
+                    $hasNg    = ($qc?->jumlah_ng ?? 0) > 0;
                     // Step 4: Packing
                     $packDone = !is_null($packing);
                 @endphp
@@ -118,9 +119,13 @@
 
                             {{-- QC --}}
                             @if($qcDone)
-                                @if($qcHasil === 'good')
+                                @if($hasFg && !$hasNg)
                                     <span class="pipe-step done">
                                         <i class="ph ph-check-circle"></i> QC (FG)
+                                    </span>
+                                @elseif($hasFg && $hasNg)
+                                    <span class="pipe-step done" style="background:#FEF3C7;color:#D97706">
+                                        <i class="ph ph-warning-circle"></i> QC (FG+NG)
                                     </span>
                                 @else
                                     <span class="pipe-step" style="background:var(--ng-bg);color:var(--ng);font-weight:600">
@@ -142,7 +147,7 @@
                                         <span style="font-size:10px;opacity:.8">({{ $packing->kode_packing }})</span>
                                     @endif
                                 </span>
-                            @elseif($qcDone && $qcHasil === 'good')
+                            @elseif($qcDone && $hasFg)
                                 <span class="pipe-step pending">
                                     <i class="ph ph-clock"></i> Packing
                                 </span>

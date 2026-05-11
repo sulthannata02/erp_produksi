@@ -28,14 +28,12 @@
             <td style="padding:10px">{{ number_format($qc->qty_qc ?? 0) }} {{ optional(optional($qc->production)->material)->satuan }}</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px;color:var(--text-muted)">Hasil</td>
-            <td style="padding:10px">
-                @if($qc->hasil === 'good')
-                    <span class="badge badge-fg">FG (OK) — Sesuai Standar</span>
-                @else
-                    <span class="badge badge-ng">NG — Tidak Sesuai</span>
-                @endif
-            </td>
+            <td style="padding:10px;color:var(--text-muted)">Thickness Atas</td>
+            <td style="padding:10px;font-weight:600">{{ $qc->thickness_atas ?? '-' }}</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:10px;color:var(--text-muted)">Thickness Bawah</td>
+            <td style="padding:10px;font-weight:600">{{ $qc->thickness_bawah ?? '-' }}</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px;color:var(--text-muted)">Keterangan</td>

@@ -47,13 +47,11 @@
                     <th rowspan="2" style="vertical-align:middle">No</th>
                     <th rowspan="2" style="vertical-align:middle">Nama Customer</th>
                     <th rowspan="2" style="vertical-align:middle">Total Produksi</th>
-                    <th colspan="2" style="text-align:center;border-left:1px solid var(--border)">Total QC</th>
+                    <th rowspan="2" style="vertical-align:middle;text-align:center;border-left:1px solid var(--border)">Total QC</th>
                     <th colspan="2" style="text-align:center;border-left:1px solid var(--border)">Total Packing</th>
                     <th rowspan="2" style="vertical-align:middle">Keterangan</th>
                 </tr>
                 <tr>
-                    <th style="border-left:1px solid var(--border)">FG (OK)</th>
-                    <th>NG</th>
                     <th style="border-left:1px solid var(--border)">Finish Good</th>
                     <th>Not Good</th>
                 </tr>
@@ -61,8 +59,7 @@
             <tbody>
                 @forelse($productions as $i => $prod)
                 @php
-                    $fgOk  = optional($prod->qc)->hasil === 'good'     ? (optional($prod->qc)->qty_qc ?? 0) : 0;
-                    $ng    = optional($prod->qc)->hasil === 'not_good' ? (optional($prod->qc)->qty_qc ?? 0) : 0;
+                    $qcTotal = optional($prod->qc)->qty_qc ?? 0;
                     $packFg = optional(optional($prod->qc)->packing)->jumlah_fg ?? 0;
                     $packNg = optional(optional($prod->qc)->packing)->jumlah_ng ?? 0;
                     $ket   = optional(optional($prod->qc)->packing)->keterangan ?? optional($prod->qc)->keterangan ?? '-';
@@ -71,8 +68,7 @@
                     <td>{{ $i + 1 }}</td>
                     <td>{{ optional($prod->material)->nama_customer ?? '-' }}</td>
                     <td>{{ number_format($prod->jumlah_produksi) }}</td>
-                    <td style="color:var(--fg-ok);font-weight:600;border-left:1px solid var(--border)">{{ number_format($fgOk) }}</td>
-                    <td style="color:var(--ng);font-weight:600">{{ number_format($ng) }}</td>
+                    <td style="text-align:center;border-left:1px solid var(--border)">{{ number_format($qcTotal) }}</td>
                     <td style="color:var(--fg-ok);font-weight:600;border-left:1px solid var(--border)">{{ number_format($packFg) }}</td>
                     <td style="color:var(--ng);font-weight:600">{{ number_format($packNg) }}</td>
                     <td style="font-size:12px;color:var(--text-mid)">{{ $ket }}</td>
@@ -96,8 +92,7 @@
                 <tr>
                     <td colspan="2" style="font-weight:700;text-align:right">TOTAL</td>
                     <td style="font-weight:700">{{ number_format($totalProduksi) }}</td>
-                    <td style="font-weight:700;color:var(--fg-ok);border-left:1px solid var(--border)">{{ number_format($totalFgOk) }}</td>
-                    <td style="font-weight:700;color:var(--ng)">{{ number_format($totalNg) }}</td>
+                    <td style="font-weight:700;text-align:center;border-left:1px solid var(--border)">{{ number_format($totalQc) }}</td>
                     <td style="font-weight:700;color:var(--fg-ok);border-left:1px solid var(--border)">{{ number_format($totalPackFg) }}</td>
                     <td style="font-weight:700;color:var(--ng)">{{ number_format($totalPackNg) }}</td>
                     <td style="font-weight:700">—</td>

@@ -6,25 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('productions', function (Blueprint $table) {
+        Schema::create('material_masuks', function (Blueprint $table) {
             $table->id();
             $table->foreignId('material_id')->constrained()->onDelete('cascade');
-            $table->integer('jumlah_produksi');
-            $table->string('status')->default('proses');
+            $table->integer('qty_masuk');
+            $table->string('no_dn');
+            $table->date('tanggal');
+            $table->string('operator')->nullable();
             $table->timestamps();
         });
-    }  
+    }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('productions');
+        Schema::dropIfExists('material_masuks');
     }
 };

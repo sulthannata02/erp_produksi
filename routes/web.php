@@ -12,6 +12,8 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Operator\QcController;
 use App\Http\Controllers\Operator\PackingController;
 use App\Http\Controllers\Operator\TrackingController;
+use App\Http\Controllers\Operator\MaterialMasukController;
+use App\Http\Controllers\Operator\ProductionWorkController;
 
 // ─── Guest only ───
 Route::middleware('guest')->group(function () {
@@ -40,18 +42,30 @@ Route::middleware('auth')->group(function () {
 
     // ── Admin only ──────────────────────────────────────────
     Route::middleware('role:admin')->group(function () {
+        // ── Reports ───────────────────────────────────────────
+        Route::get('/reports', [\App\Http\Controllers\Admin\ReportController::class, 'index'])->name('laporan.index');
+        Route::get('/reports/pdf', [\App\Http\Controllers\Admin\ReportController::class, 'pdf'])->name('laporan.pdf');
+
         Route::resource('materials', MaterialController::class);
-        Route::resource('productions', ProductionController::class);
-        Route::resource('users', UserController::class)->except(['create', 'show', 'edit']);
+        Route::resource('users', UserController::class);
         Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
-        Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
-        Route::get('/laporan/export', [LaporanController::class, 'export'])->name('laporan.export');
     });
+
+    // ── Shared (Admin & Operator) ───────────────────────────
+    Route::get('/productions/{production}/status', [ProductionController::class, 'status'])->name('productions.status');
+    Route::put('/productions/{production}/status', [ProductionController::class, 'updateStatus'])->name('productions.updateStatus');
 
     // ── Operator only ────────────────────────────────────────
     Route::middleware('role:operator')->group(function () {
+        Route::resource('material-masuks', MaterialMasukController::class);
+        Route::resource('productions', ProductionController::class);
+        Route::get('/packings/{packing}/print', [PackingController::class, 'print'])->name('packings.print');
         Route::resource('qcs', QcController::class);
         Route::resource('packings', PackingController::class);
+        Route::get('/production-work', [ProductionWorkController::class, 'index'])->name('production-work.index');
+        Route::get('/production-work/{id}/start', [ProductionWorkController::class, 'showStart'])->name('production-work.showStart');
+        Route::post('/production-work/{id}/start', [ProductionWorkController::class, 'start'])->name('production-work.start');
+        
         Route::get('/tracking', [TrackingController::class, 'index'])->name('tracking.index');
     });
 });

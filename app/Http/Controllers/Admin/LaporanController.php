@@ -30,15 +30,14 @@ class LaporanController extends Controller
 
         // Hitung total
         $totalProduksi = $productions->sum('jumlah_produksi');
-        $totalFgOk     = $productions->sum(fn($p) => optional($p->qc)->hasil === 'good'     ? optional($p->qc)->qty_qc : 0);
-        $totalNg       = $productions->sum(fn($p) => optional($p->qc)->hasil === 'not_good' ? optional($p->qc)->qty_qc : 0);
+        $totalQc       = $productions->sum(fn($p) => optional($p->qc)->qty_qc ?? 0);
         $totalPackFg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_fg ?? 0);
         $totalPackNg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_ng ?? 0);
 
         return view('admin.laporan.index', compact(
             'productions', 'customers', 'selectedCust',
             'dateFrom', 'dateTo',
-            'totalProduksi', 'totalFgOk', 'totalNg', 'totalPackFg', 'totalPackNg'
+            'totalProduksi', 'totalQc', 'totalPackFg', 'totalPackNg'
         ));
     }
 
@@ -58,14 +57,13 @@ class LaporanController extends Controller
         $productions = $query->get();
 
         $totalProduksi = $productions->sum('jumlah_produksi');
-        $totalFgOk     = $productions->sum(fn($p) => optional($p->qc)->hasil === 'good'     ? optional($p->qc)->qty_qc : 0);
-        $totalNg       = $productions->sum(fn($p) => optional($p->qc)->hasil === 'not_good' ? optional($p->qc)->qty_qc : 0);
+        $totalQc       = $productions->sum(fn($p) => optional($p->qc)->qty_qc ?? 0);
         $totalPackFg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_fg ?? 0);
         $totalPackNg   = $productions->sum(fn($p) => optional(optional($p->qc)->packing)->jumlah_ng ?? 0);
 
         $pdf = Pdf::loadview('admin.laporan.pdf', compact(
             'productions', 'selectedCust', 'dateFrom', 'dateTo',
-            'totalProduksi', 'totalFgOk', 'totalNg', 'totalPackFg', 'totalPackNg'
+            'totalProduksi', 'totalQc', 'totalPackFg', 'totalPackNg'
         ))->setPaper('a4', 'landscape');
 
         $filename = 'laporan-produksi-' . $dateFrom . '-sd-' . $dateTo . '.pdf';

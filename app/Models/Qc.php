@@ -9,9 +9,9 @@ class Qc extends Model
     protected $fillable = [
         'production_id',
         'qty_qc',
-        'hasil',      // 'good' / 'not_good'
+        'thickness_atas',
+        'thickness_bawah',
         'keterangan',
-        'catatan',
         'status',     // 'proses' / 'selesai'
     ];
 

@@ -35,35 +35,41 @@ class ProductionController extends Controller
         $productions = $query->latest()->paginate(10)->withQueryString();
         $customers   = Material::distinct()->pluck('nama_customer')->filter()->sort()->values();
 
-        $materialsList = Material::where('jumlah', '>', 0)->get();
-        $allMaterials = Material::all();
-        $operatorsList = \App\Models\User::where('role', 'operator')->get();
-
-        return view('admin.productions.index', compact('productions', 'customers', 'materialsList', 'allMaterials', 'operatorsList'));
+        return view('operator.productions.index', compact('productions', 'customers'));
     }
 
     public function create()
     {
-        $materials = Material::where('jumlah', '>', 0)->get();
-        $operators = \App\Models\User::where('role', 'operator')->get();
-        return view('admin.productions.create', compact('materials', 'operators'));
+        $materialsList = Material::where('aktual_stok', '>', 0)->get();
+        $operatorsList = \App\Models\User::where('role', 'operator')->get();
+        return view('operator.productions.create', compact('materialsList', 'operatorsList'));
+    }
+
+    public function edit($id)
+    {
+        $production = Production::findOrFail($id);
+        $operatorsList = \App\Models\User::where('role', 'operator')->get();
+        return view('operator.productions.edit', compact('production', 'operatorsList'));
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-            'material_id'    => 'required|exists:materials,id',
-            'jumlah_produksi'=> 'required|integer|min:1',
-            'operator'       => 'required|string|max:255',
+        $rules = [
+            'material_id'      => 'required|exists:materials,id',
+            'target_hanger'    => 'required|integer|min:1',
             'tanggal_produksi' => 'required|date',
-        ]);
+        ];
 
-        $material = Material::findOrFail($request->material_id);
-
-        if ($request->jumlah_produksi > $material->jumlah) {
-            return back()->with('error', 'Stok material tidak mencukupi! Stok tersedia: ' . $material->jumlah . ' ' . $material->satuan);
+        if (auth()->user()->role !== 'operator') {
+            $rules['operator'] = 'required|string|max:255';
         }
 
+        $request->validate($rules);
+
+        $operatorName = auth()->user()->role === 'operator' ? auth()->user()->name : $request->operator;
+
+        $material = Material::findOrFail($request->material_id);
+        
         // Generate kode produksi: PRD-YYMMDD-XXX
         $date  = Carbon::parse($request->tanggal_produksi)->format('ymd');
         $count = Production::whereDate('tanggal_produksi', $request->tanggal_produksi)->count() + 1;
@@ -72,52 +78,82 @@ class ProductionController extends Controller
         $production = Production::create([
             'kode_produksi'  => $kode,
             'material_id'    => $request->material_id,
-            'jumlah_produksi'=> $request->jumlah_produksi,
-            'operator'       => $request->operator,
+            'target_hanger'  => $request->target_hanger,
+            'jumlah_hanger'  => 0, // Belum dikerjakan
+            'jumlah_produksi'=> 0, // Belum dikerjakan
+            'operator'       => $operatorName,
             'tanggal_produksi'=> $request->tanggal_produksi,
-            'status'         => 'proses',
+            'status'         => 'rencana',
         ]);
 
-        $assignedOperator = \App\Models\User::where('role', 'operator')->where('name', $request->operator)->first();
+        $assignedOperator = \App\Models\User::where('role', 'operator')->where('name', $operatorName)->first();
         if ($assignedOperator) {
             $assignedOperator->notify(new \App\Notifications\ProductionAssignedNotification($production));
         }
 
-        // Kurangi stok material
-        $material->jumlah -= $request->jumlah_produksi;
-        $material->save();
-
-        return redirect()->route('productions.index')->with('success', 'Data produksi berhasil ditambahkan!');
+        // STOK TIDAK DIPOTONG DI SINI (Dipotong saat Operator Validasi/Mulai)
+        
+        return redirect()->route('productions.index')->with('success', 'Rencana Produksi (Blueprint) berhasil dibuat!');
     }
 
     public function show(string $id)
     {
         $production = Production::with(['material', 'qc'])->findOrFail($id);
-        return view('admin.productions.show', compact('production'));
-    }
-
-    public function edit(string $id)
-    {
-        $production = Production::findOrFail($id);
-        $materials  = Material::all();
-        $operators = \App\Models\User::where('role', 'operator')->get();
-        return view('admin.productions.edit', compact('production', 'materials', 'operators'));
+        return view('operator.productions.show', compact('production'));
     }
 
     public function update(Request $request, string $id)
     {
         $production = Production::findOrFail($id);
         $request->validate([
-            'operator' => 'required|string|max:255',
-            'status'   => 'required|in:proses,selesai',
+            'operator'      => 'required|string|max:255',
+            'target_hanger' => 'required|integer|min:1',
+            'jumlah_hanger' => 'nullable|integer|min:0',
+            'status'        => 'required|in:rencana,proses,selesai',
         ]);
 
+        $material = $production->material;
+        
+        // Gunakan jumlah_hanger (Actual) jika diinput, jika tidak (rencana) gunakan 0
+        $actualHanger = ($request->status === 'rencana') ? 0 : ($request->jumlah_hanger ?? $production->jumlah_hanger);
+        $totalQtyActual = $actualHanger * $material->qty_per_hanger;
+
         $production->update([
-            'operator' => $request->operator,
-            'status'   => $request->status,
+            'operator'        => $request->operator,
+            'target_hanger'   => $request->target_hanger,
+            'jumlah_hanger'   => $actualHanger,
+            'jumlah_produksi' => $totalQtyActual,
+            'status'          => $request->status,
         ]);
 
         return redirect()->route('productions.index')->with('success', 'Data produksi berhasil diperbarui!');
+    }
+
+    public function status($id)
+    {
+        $production = Production::with('material')->findOrFail($id);
+        return view('operator.productions.status', compact('production'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $production = Production::findOrFail($id);
+        
+        $request->validate([
+            'status'        => 'required|in:rencana,proses,selesai',
+            'jumlah_hanger' => 'required|integer|min:1',
+        ]);
+
+        $material = $production->material;
+        
+        // Update data
+        $production->update([
+            'status'          => $request->status,
+            'jumlah_hanger'   => $request->jumlah_hanger,
+            'jumlah_produksi' => $request->jumlah_hanger * $material->qty_per_hanger,
+        ]);
+
+        return redirect()->route('productions.index')->with('success', 'Status produksi berhasil diperbarui!');
     }
 
     public function destroy(string $id)
