@@ -51,9 +51,9 @@
                     <th>Kode Produksi</th>
                     <th>Material</th>
                     <th>Qty QC</th>
-                    <th>FG (Good)</th>
-                    <th>NG (Bad)</th>
-                    <th>Status</th>
+                    <th>Thick Atas</th>
+                    <th>Thick Bawah</th>
+                    <th>Status QC</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -65,8 +65,8 @@
                     <td><code style="background:var(--body-bg);padding:2px 6px;border-radius:4px;font-size:12px">{{ optional($qc->production)->kode_produksi }}</code></td>
                     <td>{{ optional($qc->production->material)->nama_material }}</td>
                     <td>{{ number_format($qc->qty_qc) }}</td>
-                    <td><span class="badge badge-selesai">{{ number_format($qc->jumlah_fg) }}</span></td>
-                    <td><span class="badge badge-urgent">{{ number_format($qc->jumlah_ng) }}</span></td>
+                    <td>{{ $qc->thickness_atas ?? '-' }}</td>
+                    <td>{{ $qc->thickness_bawah ?? '-' }}</td>
                     <td>
                         @if($qc->status === 'selesai')
                             <span class="badge badge-selesai">Selesai</span>
@@ -85,9 +85,9 @@
                                     <i class="ph ph-pencil-simple"></i>
                                 </a>
                             @endif
-                            <form action="{{ route('qcs.destroy', $qc->id) }}" method="POST" style="display:inline">
+                            <form action="{{ route('qcs.destroy', $qc->id) }}" method="POST" style="display:inline" id="form-delete-qc-{{ $qc->id }}">
                                 @csrf @method('DELETE')
-                                <button type="button" class="btn-del" title="Hapus" onclick="confirmDelete(this.form)">
+                                <button type="button" class="btn-del" title="Hapus" onclick="confirmDelete('form-delete-qc-{{ $qc->id }}')">
                                     <i class="ph ph-trash"></i>
                                 </button>
                             </form>

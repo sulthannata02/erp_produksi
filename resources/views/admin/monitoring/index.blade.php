@@ -114,9 +114,7 @@
                     // Step 2: Produksi (Actual) -> Done jika status bukan rencana
                     $prodDone = ($prod->status !== 'rencana');
                     // Step 3: QC
-                    $qcDone   = !is_null($qc);
-                    $hasFg    = ($qc?->jumlah_fg ?? 0) > 0;
-                    $hasNg    = ($qc?->jumlah_ng ?? 0) > 0;
+                    $qcDone   = !is_null($qc) && $qc->status === 'selesai';
                     // Step 4: Packing
                     $packDone = !is_null($packing);
                 @endphp
@@ -162,19 +160,9 @@
 
                             {{-- QC --}}
                             @if($qcDone)
-                                @if($hasFg && !$hasNg)
-                                    <span class="pipe-step done">
-                                        <i class="ph ph-check-circle"></i> QC (FG)
-                                    </span>
-                                @elseif($hasFg && $hasNg)
-                                    <span class="pipe-step done" style="background:#FEF3C7;color:#D97706">
-                                        <i class="ph ph-warning-circle"></i> QC (FG+NG)
-                                    </span>
-                                @else
-                                    <span class="pipe-step" style="background:var(--ng-bg);color:var(--ng);font-weight:600">
-                                        <i class="ph ph-x-circle"></i> QC (NG)
-                                    </span>
-                                @endif
+                                <span class="pipe-step done">
+                                    <i class="ph ph-check-circle"></i> Selesai QC
+                                </span>
                             @else
                                 <span class="pipe-step pending">
                                     <i class="ph ph-clock"></i> QC
@@ -187,7 +175,7 @@
                                 <span class="pipe-step done">
                                     <i class="ph ph-check-circle"></i> Packing
                                 </span>
-                            @elseif($qcDone && $hasFg)
+                            @elseif($qcDone)
                                 <span class="pipe-step pending">
                                     <i class="ph ph-clock"></i> Packing
                                 </span>

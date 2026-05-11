@@ -71,8 +71,8 @@
                 <td>
                     @if($p->qc)
                         Tgl: {{ $p->qc->created_at->format('d/m/Y') }}<br>
-                        FG: {{ number_format($p->qc->jumlah_fg) }}<br>
-                        NG: {{ number_format($p->qc->jumlah_ng) }}
+                        Qty: {{ number_format($p->qc->qty_qc) }}<br>
+                        Thick: {{ $p->qc->thickness_atas ?? '-' }} / {{ $p->qc->thickness_bawah ?? '-' }}
                     @else
                         -
                     @endif

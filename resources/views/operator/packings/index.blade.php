@@ -45,6 +45,7 @@
                     <th>Kode Packing</th>
                     <th>Material</th>
                     <th>Jumlah FG</th>
+                    <th>Jumlah NG</th>
                     <th>Jumlah Box</th>
                     <th>Status</th>
                     <th>Aksi</th>
@@ -57,7 +58,8 @@
                     <td>{{ $pkg->created_at->format('d/m/Y') }}</td>
                     <td><code style="background:var(--body-bg);padding:2px 6px;border-radius:4px;font-size:12px">{{ $pkg->kode_packing }}</code></td>
                     <td>{{ optional($pkg->qc->production->material)->nama_material }}</td>
-                    <td>{{ number_format($pkg->jumlah_fg) }} Pcs</td>
+                    <td><span class="badge badge-selesai">{{ number_format($pkg->jumlah_fg) }} Pcs</span></td>
+                    <td><span class="badge badge-urgent">{{ number_format($pkg->jumlah_ng) }} Pcs</span></td>
                     <td><span class="badge badge-proses">{{ number_format($pkg->jumlah_box) }} Box</span></td>
                     <td>
                         @if($pkg->status === 'selesai')
@@ -93,7 +95,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="8" style="text-align:center;color:var(--text-muted);padding:32px">
+                    <td colspan="9" style="text-align:center;color:var(--text-muted);padding:32px">
                         <i class="ph ph-archive-box" style="font-size:32px;display:block;margin-bottom:8px"></i>
                         Belum ada data packing
                     </td>

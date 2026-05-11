@@ -180,13 +180,11 @@
                 <th rowspan="2" style="vertical-align:middle;width:30px">No</th>
                 <th rowspan="2" class="left" style="vertical-align:middle">Nama Customer</th>
                 <th rowspan="2" style="vertical-align:middle">Total Produksi</th>
-                <th colspan="2" style="background:#1558B0">Total QC</th>
+                <th rowspan="2" style="background:#1558B0;vertical-align:middle">Total QC</th>
                 <th colspan="2" style="background:#0EA5E9">Total Packing</th>
                 <th rowspan="2" class="left" style="vertical-align:middle">Keterangan</th>
             </tr>
             <tr>
-                <th style="background:#1558B0">FG (OK)</th>
-                <th style="background:#1558B0">NG</th>
                 <th style="background:#0EA5E9">Finish Good</th>
                 <th style="background:#0EA5E9">Not Good</th>
             </tr>
@@ -194,8 +192,7 @@
         <tbody>
             @forelse($productions as $i => $prod)
             @php
-                $fgOk   = optional($prod->qc)->jumlah_fg ?? 0;
-                $ng     = optional($prod->qc)->jumlah_ng ?? 0;
+                $qcTotal = optional($prod->qc)->qty_qc ?? 0;
                 $packFg = optional(optional($prod->qc)->packing)->jumlah_fg ?? 0;
                 $packNg = optional(optional($prod->qc)->packing)->jumlah_ng ?? 0;
                 $ket    = optional(optional($prod->qc)->packing)->keterangan ?? optional($prod->qc)->keterangan ?? '-';
@@ -204,15 +201,14 @@
                 <td class="center">{{ $i + 1 }}</td>
                 <td>{{ optional($prod->material)->nama_customer ?? '-' }}</td>
                 <td class="center">{{ number_format($prod->jumlah_produksi) }}</td>
-                <td class="td-fg">{{ number_format($fgOk) }}</td>
-                <td class="td-ng">{{ number_format($ng) }}</td>
+                <td class="center">{{ number_format($qcTotal) }}</td>
                 <td class="td-fg">{{ number_format($packFg) }}</td>
                 <td class="td-ng">{{ number_format($packNg) }}</td>
                 <td>{{ $ket }}</td>
             </tr>
             @empty
             <tr>
-                <td colspan="8" class="empty">Tidak ada data untuk periode yang dipilih</td>
+                <td colspan="7" class="empty">Tidak ada data untuk periode yang dipilih</td>
             </tr>
             @endforelse
         </tbody>
@@ -221,8 +217,7 @@
             <tr>
                 <td colspan="2" style="text-align:right">TOTAL</td>
                 <td class="center">{{ number_format($totalProduksi) }}</td>
-                <td class="fg">{{ number_format($totalFgOk) }}</td>
-                <td class="ng">{{ number_format($totalNg) }}</td>
+                <td class="center">{{ number_format($totalQc) }}</td>
                 <td class="fg">{{ number_format($totalPackFg) }}</td>
                 <td class="ng">{{ number_format($totalPackNg) }}</td>
                 <td>—</td>

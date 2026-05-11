@@ -20,8 +20,8 @@
                     <strong>{{ optional($packing->qc->production->material)->nama_material }}</strong>
                 </div>
                 <div style="text-align:right">
-                    <small style="color:#0369A1; display:block; font-size:10px; text-transform:uppercase">Total FG dari QC</small>
-                    <strong id="info-qty-fg" data-qty-box="{{ optional($packing->qc->production->material)->qty_per_box }}">{{ number_format($packing->qc->jumlah_fg) }} Pcs</strong>
+                    <small style="color:#0369A1; display:block; font-size:10px; text-transform:uppercase">Qty dari QC</small>
+                    <strong id="info-qty-qc" data-qty-box="{{ optional($packing->qc->production->material)->qty_per_box }}" data-qty-qc="{{ $packing->qc->qty_qc }}">{{ number_format($packing->qc->qty_qc) }} Pcs</strong>
                 </div>
             </div>
         </div>
@@ -34,16 +34,22 @@
             </select>
         </div>
 
-        <div class="form-group" style="margin-bottom:24px">
-            <label class="form-label">Jumlah FG Di-Packing <span style="color:var(--ng)">*</span></label>
-            <div style="position:relative">
-                <input type="number" name="jumlah_fg" id="input-jumlah-fg" class="form-control" value="{{ old('jumlah_fg', $packing->jumlah_fg) }}" required min="1" oninput="calculateBox()" style="font-size:24px; font-weight:800; color:var(--primary); text-align:center; padding:15px">
-                <span style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px">
+            <div class="form-group">
+                <label class="form-label">Jumlah FG (Good) <span style="color:var(--ng)">*</span></label>
+                <div style="position:relative">
+                    <input type="number" name="jumlah_fg" id="input-jumlah-fg" class="form-control" value="{{ old('jumlah_fg', $packing->jumlah_fg) }}" required min="0" oninput="syncPacking('fg')" style="font-size:24px; font-weight:800; color:var(--selesai); text-align:center; padding:15px">
+                    <span style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Jumlah NG (Rusak) <span style="color:var(--ng)">*</span></label>
+                <div style="position:relative">
+                    <input type="number" name="jumlah_ng" id="input-jumlah-ng" class="form-control" value="{{ old('jumlah_ng', $packing->jumlah_ng) }}" required min="0" oninput="syncPacking('ng')" style="font-size:24px; font-weight:800; color:var(--ng); text-align:center; padding:15px">
+                    <span style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
+                </div>
             </div>
         </div>
-
-        {{-- Hidden NG (Always 0 for Packing) --}}
-        <input type="hidden" name="jumlah_ng" value="0">
 
         {{-- Auto Calculation Display --}}
         <div style="border:2px solid var(--secondary); border-radius:16px; padding:20px; background:rgba(245,158,11,0.05); text-align:center; margin-bottom:24px">
@@ -71,10 +77,26 @@
 <script>
 function calculateBox() {
     const qtyFg = parseInt(document.getElementById('input-jumlah-fg').value) || 0;
-    const infoFg = document.getElementById('info-qty-fg');
-    const qtyPerBox = parseInt(infoFg.getAttribute('data-qty-box')) || 1;
+    const infoQc = document.getElementById('info-qty-qc');
+    const qtyPerBox = parseInt(infoQc.getAttribute('data-qty-box')) || 1;
     const totalBox = Math.ceil(qtyFg / qtyPerBox);
     document.getElementById('display-total-box').textContent = totalBox.toLocaleString('id');
+}
+
+function syncPacking(source) {
+    const infoQc = document.getElementById('info-qty-qc');
+    const total = parseInt(infoQc.getAttribute('data-qty-qc')) || 0;
+    const fg = document.getElementById('input-jumlah-fg');
+    const ng = document.getElementById('input-jumlah-ng');
+    
+    if(source === 'fg') {
+        const val = parseInt(fg.value) || 0;
+        ng.value = Math.max(0, total - val);
+    } else {
+        const val = parseInt(ng.value) || 0;
+        fg.value = Math.max(0, total - val);
+    }
+    calculateBox();
 }
 document.addEventListener('DOMContentLoaded', calculateBox);
 </script>

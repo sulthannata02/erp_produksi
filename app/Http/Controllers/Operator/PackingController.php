@@ -44,7 +44,7 @@ class PackingController extends Controller
 
         $qcsList = Qc::with('production.material')
             ->whereHas('production', fn($q) => $q->where('operator', $operatorName))
-            ->where('jumlah_fg', '>', 0)
+            ->where('status', 'selesai')
             ->whereDoesntHave('packing')
             ->get();
 
@@ -57,7 +57,7 @@ class PackingController extends Controller
         $operatorName = auth()->user()->name;
         $qcs = Qc::with('production.material')
             ->whereHas('production', fn($q) => $q->where('operator', $operatorName))
-            ->where('jumlah_fg', '>', 0)
+            ->where('status', 'selesai')
             ->whereDoesntHave('packing')
             ->get();
         return view('operator.packings.create', compact('qcs'));

@@ -18,11 +18,11 @@
                 <option value="">-- Pilih Data QC --</option>
                 @foreach($qcs as $qc)
                     <option value="{{ $qc->id }}" 
-                            data-fg="{{ $qc->jumlah_fg }}"
+                            data-qty="{{ $qc->qty_qc }}"
                             data-material="{{ optional($qc->production->material)->nama_material }}"
                             data-qty-box="{{ optional($qc->production->material)->qty_per_box }}"
                             {{ (request('qc_id') == $qc->id) ? 'selected' : '' }}>
-                        {{ optional($qc->production)->kode_produksi }} — {{ optional($qc->production->material)->nama_material }} (FG: {{ number_format($qc->jumlah_fg) }} Pcs)
+                        {{ optional($qc->production)->kode_produksi }} — {{ optional($qc->production->material)->nama_material }} (QC: {{ number_format($qc->qty_qc) }} Pcs)
                     </option>
                 @endforeach
             </select>
@@ -36,24 +36,31 @@
                     <strong id="info-material-name">-</strong>
                 </div>
                 <div style="text-align:right">
-                    <small style="color:#0369A1; display:block; font-size:10px; text-transform:uppercase">Qty Hasil QC (Good)</small>
-                    <strong id="info-qty-fg" style="font-size:18px">0 Pcs</strong>
+                    <small style="color:#0369A1; display:block; font-size:10px; text-transform:uppercase">Qty Dari QC</small>
+                    <strong id="info-qty-qc" style="font-size:18px">0 Pcs</strong>
                 </div>
             </div>
         </div>
 
-        <div class="form-group" style="margin-bottom:24px">
-            <label class="form-label">Jumlah FG Di-Packing <span style="color:var(--ng)">*</span></label>
-            <div style="position:relative">
-                <input type="number" name="jumlah_fg" id="input-jumlah-fg" class="form-control @error('jumlah_fg') is-invalid @enderror" value="{{ old('jumlah_fg') }}" required min="1" oninput="calculateBox()" style="font-size:24px; font-weight:800; color:var(--selesai); text-align:center; padding:15px">
-                <span style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px">
+            <div class="form-group">
+                <label class="form-label">Jumlah FG (Good) <span style="color:var(--ng)">*</span></label>
+                <div style="position:relative">
+                    <input type="number" name="jumlah_fg" id="input-jumlah-fg" class="form-control @error('jumlah_fg') is-invalid @enderror" value="{{ old('jumlah_fg') }}" required min="0" oninput="syncPacking('fg')" style="font-size:24px; font-weight:800; color:var(--selesai); text-align:center; padding:15px">
+                    <span style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
+                </div>
+                @error('jumlah_fg') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
             </div>
-            @error('jumlah_fg') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
-            <small style="color:var(--text-muted); text-align:center; display:block; margin-top:5px">Pastikan jumlah barang sesuai dengan fisik yang akan masuk Box.</small>
+            <div class="form-group">
+                <label class="form-label">Jumlah NG (Rusak) <span style="color:var(--ng)">*</span></label>
+                <div style="position:relative">
+                    <input type="number" name="jumlah_ng" id="input-jumlah-ng" class="form-control @error('jumlah_ng') is-invalid @enderror" value="{{ old('jumlah_ng', 0) }}" required min="0" oninput="syncPacking('ng')" style="font-size:24px; font-weight:800; color:var(--ng); text-align:center; padding:15px">
+                    <span style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
+                </div>
+                @error('jumlah_ng') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
+            </div>
         </div>
-
-        {{-- Hidden NG (Always 0 for Packing) --}}
-        <input type="hidden" name="jumlah_ng" value="0">
+        <small style="color:var(--text-muted); text-align:center; display:block; margin-top:-15px; margin-bottom:24px">Pastikan jumlah barang sesuai dengan fisik yang akan masuk Box.</small>
 
         <div style="background:var(--body-bg); border-radius:12px; padding:15px; margin-bottom:24px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center">
             <div>
@@ -87,19 +94,38 @@ function loadQcInfo(sel) {
     const opt = sel.options[sel.selectedIndex];
     const infoBox = document.getElementById('info-qc');
     const inputFg = document.getElementById('input-jumlah-fg');
+    const inputNg = document.getElementById('input-jumlah-ng');
 
     if(opt.value) {
         infoBox.style.display = 'block';
         document.getElementById('info-material-name').textContent = opt.dataset.material;
-        document.getElementById('info-qty-fg').textContent = parseInt(opt.dataset.fg).toLocaleString('id') + ' Pcs';
+        document.getElementById('info-qty-qc').textContent = parseInt(opt.dataset.qty).toLocaleString('id') + ' Pcs';
         
-        // Otomatis isi FG
-        inputFg.value = opt.dataset.fg;
+        // Otomatis isi FG full dan NG 0
+        inputFg.value = opt.dataset.qty;
+        inputNg.value = 0;
         
         calculateBox();
     } else {
         infoBox.style.display = 'none';
     }
+}
+
+function syncPacking(source) {
+    const sel = document.getElementById('select-qc-packing');
+    const opt = sel.options[sel.selectedIndex];
+    const total = parseInt(opt.dataset.qty) || 0;
+    const fg = document.getElementById('input-jumlah-fg');
+    const ng = document.getElementById('input-jumlah-ng');
+    
+    if(source === 'fg') {
+        const val = parseInt(fg.value) || 0;
+        ng.value = Math.max(0, total - val);
+    } else {
+        const val = parseInt(ng.value) || 0;
+        fg.value = Math.max(0, total - val);
+    }
+    calculateBox();
 }
 
 function calculateBox() {

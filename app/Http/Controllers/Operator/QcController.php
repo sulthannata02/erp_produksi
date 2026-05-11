@@ -61,20 +61,20 @@ class QcController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'production_id' => 'required|exists:productions,id',
-            'qty_qc'        => 'required|integer|min:1',
-            'jumlah_fg'     => 'required|integer|min:0',
-            'jumlah_ng'     => 'required|integer|min:0',
-            'keterangan'    => 'nullable|string|max:500',
+            'production_id'   => 'required|exists:productions,id',
+            'qty_qc'          => 'required|integer|min:1',
+            'thickness_atas'  => 'nullable|string|max:255',
+            'thickness_bawah' => 'nullable|string|max:255',
+            'keterangan'      => 'nullable|string|max:500',
         ]);
 
         Qc::create([
-            'production_id' => $request->production_id,
-            'qty_qc'        => $request->qty_qc,
-            'jumlah_fg'     => $request->jumlah_fg,
-            'jumlah_ng'     => $request->jumlah_ng,
-            'keterangan'    => $request->keterangan,
-            'status'        => 'proses',
+            'production_id'   => $request->production_id,
+            'qty_qc'          => $request->qty_qc,
+            'thickness_atas'  => $request->thickness_atas,
+            'thickness_bawah' => $request->thickness_bawah,
+            'keterangan'      => $request->keterangan,
+            'status'          => 'proses',
         ]);
 
         // Update status produksi
@@ -109,17 +109,17 @@ class QcController extends Controller
     {
         $qc = Qc::findOrFail($id);
         $request->validate([
-            'jumlah_fg'  => 'required|integer|min:0',
-            'jumlah_ng'  => 'required|integer|min:0',
-            'keterangan' => 'nullable|string|max:500',
-            'status'     => 'required|in:proses,selesai',
+            'thickness_atas'  => 'nullable|string|max:255',
+            'thickness_bawah' => 'nullable|string|max:255',
+            'keterangan'      => 'nullable|string|max:500',
+            'status'          => 'required|in:proses,selesai',
         ]);
 
         $qc->update([
-            'jumlah_fg'  => $request->jumlah_fg,
-            'jumlah_ng'  => $request->jumlah_ng,
-            'keterangan' => $request->keterangan,
-            'status'     => $request->status,
+            'thickness_atas'  => $request->thickness_atas,
+            'thickness_bawah' => $request->thickness_bawah,
+            'keterangan'      => $request->keterangan,
+            'status'          => $request->status,
         ]);
 
         return redirect()->route('qcs.index')->with('success', 'Data QC berhasil diperbarui!');

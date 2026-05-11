@@ -26,7 +26,18 @@
             </div>
         </div>
 
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-bottom:24px">
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px">
+            <div class="form-group">
+                <label class="form-label">Thickness Atas</label>
+                <input type="text" name="thickness_atas" class="form-control" value="{{ old('thickness_atas', $qc->thickness_atas) }}">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Thickness Bawah</label>
+                <input type="text" name="thickness_bawah" class="form-control" value="{{ old('thickness_bawah', $qc->thickness_bawah) }}">
+            </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:24px">
             <div class="form-group">
                 <label class="form-label">Status QC</label>
                 <select name="status" class="form-select-full" required>
@@ -34,22 +45,7 @@
                     <option value="selesai" {{ old('status', $qc->status) == 'selesai' || $qc->status == 'proses' ? 'selected' : '' }}>Selesai Dicek</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label class="form-label">Jumlah FG (Good/Bagus) <span style="color:var(--selesai)">*</span></label>
-                <div style="position:relative">
-                    <input type="number" name="jumlah_fg" id="input-jumlah-fg" class="form-control" value="{{ old('jumlah_fg', ($qc->jumlah_fg == 0 ? $qc->qty_qc : $qc->jumlah_fg)) }}" required min="0" oninput="syncQC('fg')" style="font-size:18px; font-weight:700; color:var(--selesai)">
-                    <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--selesai)">FG</span>
-                </div>
-            </div>
-            <div class="form-group">
-                <label class="form-label">Jumlah NG (Bad/Rusak) <span style="color:var(--ng)">*</span></label>
-                <div style="position:relative">
-                    <input type="number" name="jumlah_ng" id="input-jumlah-ng" class="form-control" value="{{ old('jumlah_ng', $qc->jumlah_ng) }}" required min="0" oninput="syncQC('ng')" style="font-size:18px; font-weight:700; color:var(--ng)">
-                    <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--ng)">NG</span>
-                </div>
-            </div>
         </div>
-        <small style="color:var(--text-muted); display:block; margin-top:-15px; margin-bottom:20px">Total FG + NG harus sama dengan Total QC ({{ number_format($qc->qty_qc) }} Pcs).</small>
 
         <div class="form-group">
             <label class="form-label">Keterangan</label>
@@ -64,20 +60,5 @@
 </div>
 
 @push('scripts')
-<script>
-function syncQC(source) {
-    const total = parseInt(document.getElementById('info-qty-total').dataset.qty) || 0;
-    const fg = document.getElementById('input-jumlah-fg');
-    const ng = document.getElementById('input-jumlah-ng');
-    
-    if(source === 'fg') {
-        const val = parseInt(fg.value) || 0;
-        ng.value = Math.max(0, total - val);
-    } else {
-        const val = parseInt(ng.value) || 0;
-        fg.value = Math.max(0, total - val);
-    }
-}
-</script>
 @endpush
 @endsection

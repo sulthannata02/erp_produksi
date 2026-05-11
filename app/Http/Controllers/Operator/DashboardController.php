@@ -27,10 +27,10 @@ class DashboardController extends Controller
             ->latest()
             ->get();
 
-        // Produksi sudah QC (good) tapi belum packing
+        // Produksi sudah QC tapi belum packing
         $belumPacking = Production::with(['material', 'qc'])
             ->where('operator', $operatorName)
-            ->whereHas('qc', fn($q) => $q->where('jumlah_fg', '>', 0))
+            ->whereHas('qc', fn($q) => $q->where('status', 'selesai'))
             ->whereHas('qc', fn($q) => $q->whereDoesntHave('packing'))
             ->latest()
             ->get();

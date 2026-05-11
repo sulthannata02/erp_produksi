@@ -53,9 +53,19 @@
             <small style="color:var(--text-muted)">Input jumlah barang yang akan diperiksa. Data FG (Bagus) dan NG (Rusak) diisi saat proses pengecekan selesai.</small>
         </div>
 
-        {{-- Hidden fields for initial step --}}
-        <input type="hidden" name="jumlah_fg" value="0">
-        <input type="hidden" name="jumlah_ng" value="0">
+        <div class="form-group" style="display:flex; gap:15px; margin-bottom: 20px;">
+            <div style="flex:1">
+                <label class="form-label">Thickness Atas</label>
+                <input type="text" name="thickness_atas" class="form-control @error('thickness_atas') is-invalid @enderror" value="{{ old('thickness_atas') }}" placeholder="Contoh: 0.5mm">
+                @error('thickness_atas') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
+            </div>
+            <div style="flex:1">
+                <label class="form-label">Thickness Bawah</label>
+                <input type="text" name="thickness_bawah" class="form-control @error('thickness_bawah') is-invalid @enderror" value="{{ old('thickness_bawah') }}" placeholder="Contoh: 0.6mm">
+                @error('thickness_bawah') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
+            </div>
+        </div>
+
         <input type="hidden" name="status" value="proses">
 
         <div class="form-group">
@@ -80,31 +90,9 @@ function loadProdInfo(sel) {
         document.getElementById('info-qty-total').textContent = opt.dataset.qty + ' ' + opt.dataset.satuan;
         document.getElementById('info-material-name').textContent = opt.dataset.material;
         document.getElementById('input-qty-qc').value = opt.dataset.qty;
-        document.getElementById('input-jumlah-fg').value = opt.dataset.qty;
-        document.getElementById('input-jumlah-ng').value = 0;
     } else {
         document.getElementById('info-batch').style.display = 'none';
     }
-}
-
-function syncQC(source) {
-    const total = parseInt(document.getElementById('input-qty-qc').value) || 0;
-    const fg = document.getElementById('input-jumlah-fg');
-    const ng = document.getElementById('input-jumlah-ng');
-    
-    if(source === 'fg') {
-        const val = parseInt(fg.value) || 0;
-        ng.value = Math.max(0, total - val);
-    } else {
-        const val = parseInt(ng.value) || 0;
-        fg.value = Math.max(0, total - val);
-    }
-}
-
-function validateQC() {
-    const total = parseInt(document.getElementById('input-qty-qc').value) || 0;
-    document.getElementById('input-jumlah-fg').value = total;
-    document.getElementById('input-jumlah-ng').value = 0;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
