@@ -28,12 +28,12 @@
             <td style="padding:10px">{{ number_format($qc->qty_qc ?? 0) }} {{ optional(optional($qc->production)->material)->satuan }}</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px;color:var(--text-muted)">Thickness Atas</td>
-            <td style="padding:10px;font-weight:600">{{ $qc->thickness_atas ?? '-' }}</td>
+            <td style="padding:10px;color:var(--text-muted)">Thickness Atas (μm)</td>
+            <td style="padding:10px;font-weight:600">{{ $qc->thickness_atas ?? '-' }} {{ $qc->thickness_atas ? 'μm' : '' }}</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
-            <td style="padding:10px;color:var(--text-muted)">Thickness Bawah</td>
-            <td style="padding:10px;font-weight:600">{{ $qc->thickness_bawah ?? '-' }}</td>
+            <td style="padding:10px;color:var(--text-muted)">Thickness Bawah (μm)</td>
+            <td style="padding:10px;font-weight:600">{{ $qc->thickness_bawah ?? '-' }} {{ $qc->thickness_bawah ? 'μm' : '' }}</td>
         </tr>
         <tr style="border-bottom:1px solid var(--border)">
             <td style="padding:10px;color:var(--text-muted)">Keterangan</td>

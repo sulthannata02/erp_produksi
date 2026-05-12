@@ -28,11 +28,11 @@
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px; margin-bottom:20px">
             <div class="form-group">
-                <label class="form-label">Thickness Atas</label>
+                <label class="form-label">Thickness Atas (μm)</label>
                 <input type="text" name="thickness_atas" class="form-control" value="{{ old('thickness_atas', $qc->thickness_atas) }}">
             </div>
             <div class="form-group">
-                <label class="form-label">Thickness Bawah</label>
+                <label class="form-label">Thickness Bawah (μm)</label>
                 <input type="text" name="thickness_bawah" class="form-control" value="{{ old('thickness_bawah', $qc->thickness_bawah) }}">
             </div>
         </div>

@@ -87,7 +87,7 @@
                             <div style="line-height:1.4">
                                 📅 {{ $p->qc->created_at->format('d/m/Y H:i') }}<br>
                                 <span style="color:var(--selesai)">QC Qty: {{ number_format($p->qc->qty_qc) }}</span><br>
-                                <small>Thick: {{ $p->qc->thickness_atas ?? '-' }} / {{ $p->qc->thickness_bawah ?? '-' }}</small>
+                                <small>Thick <span style="text-transform: none">(μm)</span>: {{ $p->qc->thickness_atas ?? '-' }} / {{ $p->qc->thickness_bawah ?? '-' }}</small>
                             </div>
                         @else
                             <span style="color:var(--text-muted)">- Antri QC -</span>

@@ -50,18 +50,18 @@
                 <span style="position:absolute; right:15px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted)">Pcs</span>
             </div>
             @error('qty_qc') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
-            <small style="color:var(--text-muted)">Input jumlah barang yang akan diperiksa. Data FG (Bagus) dan NG (Rusak) diisi saat proses pengecekan selesai.</small>
+            <small style="color:var(--text-muted)">Input jumlah barang yang akan diperiksa. Data digunakan untuk pencatatan hasil pengecekan ketebalan coating produksi.</small>
         </div>
 
         <div class="form-group" style="display:flex; gap:15px; margin-bottom: 20px;">
             <div style="flex:1">
-                <label class="form-label">Thickness Atas</label>
-                <input type="text" name="thickness_atas" class="form-control @error('thickness_atas') is-invalid @enderror" value="{{ old('thickness_atas') }}" placeholder="Contoh: 0.5mm">
+                <label class="form-label">Thickness Atas (μm)</label>
+                <input type="text" name="thickness_atas" class="form-control @error('thickness_atas') is-invalid @enderror" value="{{ old('thickness_atas') }}" placeholder="Contoh: 18">
                 @error('thickness_atas') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
             </div>
             <div style="flex:1">
-                <label class="form-label">Thickness Bawah</label>
-                <input type="text" name="thickness_bawah" class="form-control @error('thickness_bawah') is-invalid @enderror" value="{{ old('thickness_bawah') }}" placeholder="Contoh: 0.6mm">
+                <label class="form-label">Thickness Bawah (μm)</label>
+                <input type="text" name="thickness_bawah" class="form-control @error('thickness_bawah') is-invalid @enderror" value="{{ old('thickness_bawah') }}" placeholder="Contoh: 20">
                 @error('thickness_bawah') <div style="color:var(--ng); font-size:12px; margin-top:4px">{{ $message }}</div> @enderror
             </div>
         </div>

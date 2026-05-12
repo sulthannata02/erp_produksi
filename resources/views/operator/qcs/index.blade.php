@@ -51,8 +51,8 @@
                     <th>Kode Produksi</th>
                     <th>Material</th>
                     <th>Qty QC</th>
-                    <th>Thick Atas</th>
-                    <th>Thick Bawah</th>
+                    <th>Thick Atas <span style="text-transform: none">(μm)</span></th>
+                    <th>Thick Bawah <span style="text-transform: none">(μm)</span></th>
                     <th>Status QC</th>
                     <th>Aksi</th>
                 </tr>
