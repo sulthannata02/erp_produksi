@@ -72,7 +72,7 @@
                     @if($p->qc)
                         Tgl: {{ $p->qc->created_at->format('d/m/Y') }}<br>
                         Qty: {{ number_format($p->qc->qty_qc) }}<br>
-                        Thick: {{ $p->qc->thickness_atas ?? '-' }} / {{ $p->qc->thickness_bawah ?? '-' }}
+                        Thick <span style="text-transform: none">(μm)</span>: {{ $p->qc->thickness_atas ?? '-' }} / {{ $p->qc->thickness_bawah ?? '-' }}
                     @else
                         -
                     @endif

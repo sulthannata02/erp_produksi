@@ -106,10 +106,11 @@ class ProductionController extends Controller
     {
         $production = Production::findOrFail($id);
         $request->validate([
-            'operator'      => 'required|string|max:255',
-            'target_hanger' => 'required|integer|min:1',
-            'jumlah_hanger' => 'nullable|integer|min:0',
-            'status'        => 'required|in:rencana,proses,selesai',
+            'operator'         => auth()->user()->role === 'operator' ? 'nullable' : 'required|string|max:255',
+            'target_hanger'    => 'required|integer|min:1',
+            'jumlah_hanger'    => 'nullable|integer|min:0',
+            'status'           => 'required|in:rencana,proses,selesai',
+            'tanggal_produksi' => 'required|date',
         ]);
 
         $material = $production->material;
@@ -118,13 +119,19 @@ class ProductionController extends Controller
         $actualHanger = ($request->status === 'rencana') ? 0 : ($request->jumlah_hanger ?? $production->jumlah_hanger);
         $totalQtyActual = $actualHanger * $material->qty_per_hanger;
 
-        $production->update([
-            'operator'        => $request->operator,
-            'target_hanger'   => $request->target_hanger,
-            'jumlah_hanger'   => $actualHanger,
-            'jumlah_produksi' => $totalQtyActual,
-            'status'          => $request->status,
-        ]);
+        $updateData = [
+            'target_hanger'    => $request->target_hanger,
+            'jumlah_hanger'    => $actualHanger,
+            'jumlah_produksi'  => $totalQtyActual,
+            'status'           => $request->status,
+            'tanggal_produksi' => $request->tanggal_produksi,
+        ];
+
+        if ($request->filled('operator')) {
+            $updateData['operator'] = $request->operator;
+        }
+
+        $production->update($updateData);
 
         return redirect()->route('productions.index')->with('success', 'Data produksi berhasil diperbarui!');
     }

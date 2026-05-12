@@ -128,20 +128,18 @@
                                         style="display:flex; align-items:center; gap:5px; white-space:nowrap; background:#10B981; border:none">
                                     <i class="ph ph-arrow-circle-right"></i> Status
                                 </a>
-                                <a href="{{ route('productions.edit', $prod->id) }}" class="btn-edit" title="Edit">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                            @else
-                                <a href="{{ route('productions.edit', $prod->id) }}" class="btn-edit" title="Edit">
-                                    <i class="ph ph-pencil-simple"></i>
-                                </a>
-                                <form action="{{ route('productions.destroy', $prod->id) }}" method="POST" style="display:inline" id="form-delete-{{ $prod->id }}">
-                                    @csrf @method('DELETE')
-                                    <button type="button" class="btn-del" title="Hapus" onclick="confirmDelete('form-delete-{{ $prod->id }}')">
-                                        <i class="ph ph-trash"></i>
-                                    </button>
-                                </form>
                             @endif
+                            
+                            <a href="{{ route('productions.edit', $prod->id) }}" class="btn-edit" title="Edit">
+                                <i class="ph ph-pencil-simple"></i>
+                            </a>
+
+                            <form action="{{ route('productions.destroy', $prod->id) }}" method="POST" style="display:inline" id="form-delete-{{ $prod->id }}">
+                                @csrf @method('DELETE')
+                                <button type="button" class="btn-del" title="Hapus" onclick="confirmDelete('form-delete-{{ $prod->id }}')">
+                                    <i class="ph ph-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
